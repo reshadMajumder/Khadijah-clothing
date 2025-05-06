@@ -79,7 +79,7 @@ const HomePage: React.FC = () => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`${API_BASE_URL}api/products/`);
+        const response = await fetch(`${API_BASE_URL}api/featured-products/`);
         const data = await response.json();
         
         if (data.status === 'success' && data.products) {

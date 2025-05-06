@@ -306,6 +306,7 @@ class ProductListCreate(APIView):
 
 
 class ProductDetailView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]
     def invalidate_product_cache(self):
         cache.delete('product_list')

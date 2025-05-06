@@ -63,6 +63,18 @@ const ManageProducts: React.FC = () => {
   // Add a useRef for the description field in the edit modal
   const descriptionFieldRef = React.useRef<HTMLTextAreaElement>(null);
 
+  // Add this state near the top of your component after other state declarations
+  const [directDescription, setDirectDescription] = useState<string>('');
+
+  // Debug console logging for API responses
+  useEffect(() => {
+    console.log("Current product being edited:", editProductId);
+    if (editProductId) {
+      const product = products.find(p => p.id === editProductId);
+      console.log("Editing product data:", product);
+    }
+  }, [editProductId, products]);
+
   // Check if user is authenticated
   useEffect(() => {
     if (!currentUser) {
@@ -155,6 +167,54 @@ const ManageProducts: React.FC = () => {
     }
   }, [showModal, isEditMode, editProductId, products]);
 
+  // Modify the useEffect that updates description in the modal
+  useEffect(() => {
+    if (showModal && isEditMode && descriptionFieldRef.current) {
+      // Force the description value into the input field
+      if (descriptionFieldRef.current.value !== description) {
+        descriptionFieldRef.current.value = description || '';
+        console.log("Force updated description field value:", description);
+      }
+      
+      // Add a focus and blur event to ensure updates
+      const textareaEl = descriptionFieldRef.current;
+      const onFocus = () => {
+        console.log("Description field focused");
+      };
+      const onBlur = () => {
+        const newValue = textareaEl.value;
+        if (description !== newValue) {
+          setDescription(newValue);
+          console.log("Description updated on blur:", newValue);
+        }
+      };
+      
+      textareaEl.addEventListener('focus', onFocus);
+      textareaEl.addEventListener('blur', onBlur);
+      
+      return () => {
+        textareaEl.removeEventListener('focus', onFocus);
+        textareaEl.removeEventListener('blur', onBlur);
+      };
+    }
+  }, [showModal, description, isEditMode]);
+
+  // Add a new useEffect to monitor API data loading
+  useEffect(() => {
+    if (products.length > 0 && editProductId) {
+      const product = products.find(p => p.id === editProductId);
+      if (product && descriptionFieldRef.current && showModal) {
+        // Make sure description field is updated when products data changes
+        const descriptionValue = product.description || '';
+        if (descriptionFieldRef.current.value !== descriptionValue) {
+          console.log("Updating description from product data change:", descriptionValue);
+          descriptionFieldRef.current.value = descriptionValue;
+          setDescription(descriptionValue);
+        }
+      }
+    }
+  }, [products, editProductId, showModal]);
+
   // Handle multiple image selection
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -210,25 +270,63 @@ const ManageProducts: React.FC = () => {
     setError('');
   };
 
+  // Get description directly from API
+  const getProductDescription = (productId: string) => {
+    if (!productId) return;
+    
+    console.log("Getting product description directly from API");
+    
+    fetch(`${API_BASE_URL}api/admin/products/${productId}/`, {
+      headers: {
+        'Authorization': `Bearer ${authTokens?.access}`,
+      }
+    })
+    .then(response => {
+      if (response.ok) {
+        return response.json();
+      }
+      throw new Error('Failed to fetch product details');
+    })
+    .then(data => {
+      console.log("Raw product data from API:", data);
+      
+      // Try different ways to get the description
+      const descriptionFromData = data.description || (data.product && data.product.description) || '';
+      console.log("Extracted description:", descriptionFromData);
+      
+      // Update both the React state and the DOM element directly
+      setDirectDescription(descriptionFromData);
+      setDescription(descriptionFromData);
+      
+      if (descriptionFieldRef.current) {
+        descriptionFieldRef.current.value = descriptionFromData;
+      }
+    })
+    .catch(error => {
+      console.error("Error fetching product description:", error);
+    });
+  };
+
   // Load product data for editing
   const loadProductForEdit = (product: Product) => {
-    console.log("Loading product with description:", product.description);
+    console.log("Loading product for edit (full object):", product);
     
     // Set all form fields from product data
     setIsEditMode(true);
     setEditProductId(product.id);
     
-    // Set description explicitly before other fields
-    setDescription(product.description || '');
+    // Get description directly from API
+    getProductDescription(product.id);
     
-    // Set other form fields
-    setTitle(product.title);
-    setPrice(product.price.toString());
-    setSelectedSizes(product.size.map(s => s.id));
-    setCategoryId(product.category.id);
+    // Set all other form fields with safe values
+    setTitle(product.title || '');
+    setPrice(product.price ? product.price.toString() : '');
+    setSelectedSizes(product.size ? product.size.map(s => s.id) : []);
+    setCategoryId(product.category ? product.category.id : '');
     
     // Reset previous state for images
     setImages([]);
+    setImagePreviewUrls([]);
     
     // Handle existing images
     if (product.images && product.images.length > 0) {
@@ -253,12 +351,12 @@ const ManageProducts: React.FC = () => {
       } else {
         setImageUrls(['']);
       }
+    } else {
+      setImageUrls(['']);
     }
     
     // Show modal after setting all data
-    setTimeout(() => {
-      setShowModal(true);
-    }, 10);
+    setShowModal(true);
   };
 
   // Close modal and reset form
@@ -411,6 +509,13 @@ const ManageProducts: React.FC = () => {
     }
   };
 
+  // Add a specific handler for description changes
+  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newValue = e.target.value;
+    console.log("Description changed to:", newValue);
+    setDescription(newValue);
+  };
+
   return (
     <div className="pb-12 bg-teal-950 min-h-screen">
       <div className="container-custom max-w-6xl">
@@ -470,7 +575,7 @@ const ManageProducts: React.FC = () => {
                 <textarea
                   id="description"
                   value={description}
-                  onChange={(e) => setDescription(e.target.value)}
+                  onChange={handleDescriptionChange}
                   rows={4}
                   className="w-full p-2 rounded-md bg-teal-800 border border-teal-700 text-white"
                   placeholder="Enter product description"
@@ -806,12 +911,31 @@ const ManageProducts: React.FC = () => {
                   <textarea
                     id="modal-description"
                     ref={descriptionFieldRef}
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    rows={4}
                     className="w-full p-3 rounded-md bg-teal-800/50 border border-teal-700 text-white focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-colors"
                     placeholder="Enter product description"
+                    defaultValue={directDescription || description || ''}
+                    rows={4}
+                    onChange={handleDescriptionChange}
                   ></textarea>
+                  <div className="mt-1 text-xs flex justify-between">
+                    <span className="text-gray-400">
+                      {directDescription ? `Current description: ${directDescription}` : 'Loading description...'}
+                    </span>
+                    {directDescription !== description && (
+                      <button 
+                        type="button" 
+                        className="text-teal-400 hover:text-teal-300"
+                        onClick={() => {
+                          if (descriptionFieldRef.current) {
+                            descriptionFieldRef.current.value = directDescription;
+                            setDescription(directDescription);
+                          }
+                        }}
+                      >
+                        Reset to original
+                      </button>
+                    )}
+                  </div>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
