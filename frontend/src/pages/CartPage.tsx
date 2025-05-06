@@ -3,8 +3,7 @@ import { Link } from 'react-router-dom';
 import { Trash2, ShoppingBag, ChevronLeft, AlertTriangle, CheckCircle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import toast from 'react-hot-toast';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '../firebase/config';
+import { API_BASE_URL } from '../data/ApiUrl';
 
 interface OrderForm {
   fullName: string;
@@ -66,32 +65,55 @@ const CartPage: React.FC = () => {
     setIsSubmitting(true);
     
     try {
-      // In a real implementation, save to Firebase
-      // const orderData = {
-      //   name: formData.fullName,
-      //   address: formData.address,
-      //   phone_number: formData.phoneNumber,
-      //   products: cartItems.map(item => ({
-      //     product_id: item.id,
-      //     size: item.size,
-      //     quantity: item.quantity
-      //   })),
-      //   total_price_bdt: getTotalPrice(),
-      //   status: 'Pending',
-      //   created_at: serverTimestamp()
-      // };
+      // Format the data according to the API requirements
+      const orderData = {
+        customer_name: formData.fullName,
+        customer_phone: formData.phoneNumber,
+        customer_address: formData.address,
+        items_data: cartItems.map(item => ({
+          product_id: item.id,
+          quantity: item.quantity
+        }))
+      };
       
-      // const docRef = await addDoc(collection(db, 'orders'), orderData);
+      console.log('Submitting order with data:', orderData);
+      console.log('API URL:', `${API_BASE_URL}api/order/`);
       
-      // For demo, simulate a delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Send the order to the API
+      const response = await fetch(`${API_BASE_URL}api/order/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(orderData),
+      });
       
-      // Clear cart and show success
+      // Check if the response is JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        // Handle non-JSON response
+        const textResponse = await response.text();
+        console.error('Received non-JSON response:', textResponse);
+        throw new Error('The server returned an invalid response. Please try again later.');
+      }
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        // Handle API error with error message from response
+        const errorMessage = data.message || data.error || 'Failed to submit order';
+        throw new Error(errorMessage);
+      }
+      
+      // Order successful
+      console.log('Order success response:', data);
+      toast.success('Order submitted successfully!');
       clearCart();
       setOrderSuccess(true);
     } catch (error) {
       console.error('Error submitting order:', error);
-      toast.error('Failed to submit order. Please try again.');
+      toast.error(error instanceof Error ? error.message : 'Failed to submit order. Please try again.');
     } finally {
       setIsSubmitting(false);
     }

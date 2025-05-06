@@ -307,6 +307,8 @@ class ProductListCreate(APIView):
 
 class ProductDetailView(APIView):
     parser_classes = [MultiPartParser, FormParser]
+    def invalidate_product_cache(self):
+        cache.delete('product_list')
 
     def get_object(self, pk):
         try:
@@ -336,11 +338,12 @@ class ProductDetailView(APIView):
         if 'category' in request.data:
             product.category_id = request.data['category']
         product.save()
-
+        self.invalidate_product_cache()
         # Update sizes only if provided
         if 'size' in request.data:
             size_ids = request.data.getlist('size')
             product.size.set(size_ids)
+        self.invalidate_product_cache()
 
         # Handle new images only if provided
         i = 0
@@ -355,10 +358,10 @@ class ProductDetailView(APIView):
             )
             product.images.add(img)
             i += 1
-        # delete the cache
-        cache.delete('products')
+        self.invalidate_product_cache()
 
         serializer = ProductDetailSerializer(product)
+
         return Response(serializer.data, status=200)
 
     def delete(self, request, pk):
@@ -393,7 +396,7 @@ class OrderView(APIView):
     - DELETE: Delete a specific inquiry by its ID.
     """
 
-   
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, pk=None):
         """
@@ -424,6 +427,16 @@ class OrderView(APIView):
                 "message": "All inquiries fetched successfully",
                 "data": serializer.data
             }, status=status.HTTP_200_OK)
+        
+
+
+    def put(self, request, pk):
+        order = get_object_or_404(Order, id=pk)
+        serializer = OrderSerializer(order, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
         """

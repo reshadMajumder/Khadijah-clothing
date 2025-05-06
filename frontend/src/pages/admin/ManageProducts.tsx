@@ -737,31 +737,34 @@ const ManageProducts: React.FC = () => {
         
         {/* Edit Product Modal */}
         {showModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-teal-900 rounded-lg shadow-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold text-white">Edit Product</h2>
+          <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4 backdrop-blur-sm transition-all duration-300">
+            <div className="bg-gradient-to-b from-teal-900 to-teal-950 rounded-lg shadow-2xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto border border-teal-800">
+              <div className="flex justify-between items-center mb-6 border-b border-teal-800 pb-4">
+                <h2 className="text-2xl font-semibold text-white flex items-center">
+                  <Edit className="h-5 w-5 mr-3 text-teal-400" />
+                  Edit Product
+                </h2>
                 <button
                   onClick={handleCloseModal}
-                  className="text-gray-400 hover:text-white transition-colors"
+                  className="text-gray-400 hover:text-white transition-colors bg-teal-800/50 hover:bg-teal-800 rounded-full p-2"
                   title="Close modal"
                 >
-                  <X size={24} />
+                  <X size={20} />
                 </button>
               </div>
               
               {error && (
-                <div className="mb-6 p-3 bg-red-900/30 border border-red-800 rounded-md flex items-start">
+                <div className="mb-6 p-4 bg-red-900/30 border border-red-800 rounded-md flex items-start animate-pulse">
                   <AlertCircle className="h-5 w-5 text-red-500 mr-2 flex-shrink-0 mt-0.5" />
                   <p className="text-red-300 text-sm">{error}</p>
                 </div>
               )}
               
-              {editProductId && (
-                <form onSubmit={handleSubmit}>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Product Title */}
-                  <div className="mb-4">
-                    <label htmlFor="modal-title" className="block text-gray-300 mb-1">
+                  <div className="col-span-1">
+                    <label htmlFor="modal-title" className="block text-gray-300 mb-2 font-medium">
                       Product Title*
                     </label>
                     <input
@@ -769,54 +772,59 @@ const ManageProducts: React.FC = () => {
                       id="modal-title"
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
-                      className="w-full p-2 rounded-md bg-teal-800 border border-teal-700 text-white"
+                      className="w-full p-3 rounded-md bg-teal-800/50 border border-teal-700 text-white focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-colors"
                       placeholder="Enter product title"
                     />
                   </div>
                   
-                  {/* Product Description */}
-                  <div className="mb-4">
-                    <label htmlFor="modal-description" className="block text-gray-300 mb-1">
-                      Description*
-                    </label>
-                    <textarea
-                      id="modal-description"
-                      ref={descriptionFieldRef}
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                      rows={4}
-                      className="w-full p-2 rounded-md bg-teal-800 border border-teal-700 text-white"
-                      placeholder="Enter product description"
-                    ></textarea>
-                  </div>
-                  
                   {/* Price */}
-                  <div className="mb-4">
-                    <label htmlFor="modal-price" className="block text-gray-300 mb-1">
+                  <div className="col-span-1">
+                    <label htmlFor="modal-price" className="block text-gray-300 mb-2 font-medium">
                       Price*
                     </label>
-                    <input
-                      type="number"
-                      id="modal-price"
-                      value={price}
-                      onChange={(e) => setPrice(e.target.value)}
-                      className="w-full p-2 rounded-md bg-teal-800 border border-teal-700 text-white"
-                      placeholder="Enter price"
-                      min="0"
-                      step="0.01"
-                    />
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">$</span>
+                      <input
+                        type="number"
+                        id="modal-price"
+                        value={price}
+                        onChange={(e) => setPrice(e.target.value)}
+                        className="w-full p-3 pl-7 rounded-md bg-teal-800/50 border border-teal-700 text-white focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-colors"
+                        placeholder="Enter price"
+                        min="0"
+                        step="0.01"
+                      />
+                    </div>
                   </div>
-                  
+                </div>
+                
+                {/* Product Description */}
+                <div>
+                  <label htmlFor="modal-description" className="block text-gray-300 mb-2 font-medium">
+                    Description*
+                  </label>
+                  <textarea
+                    id="modal-description"
+                    ref={descriptionFieldRef}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    rows={4}
+                    className="w-full p-3 rounded-md bg-teal-800/50 border border-teal-700 text-white focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-colors"
+                    placeholder="Enter product description"
+                  ></textarea>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Category Selection */}
-                  <div className="mb-4">
-                    <label htmlFor="modal-category" className="block text-gray-300 mb-1">
+                  <div>
+                    <label htmlFor="modal-category" className="block text-gray-300 mb-2 font-medium">
                       Category*
                     </label>
                     <select
                       id="modal-category"
                       value={categoryId}
                       onChange={(e) => setCategoryId(e.target.value)}
-                      className="w-full p-2 rounded-md bg-teal-800 border border-teal-700 text-white"
+                      className="w-full p-3 rounded-md bg-teal-800/50 border border-teal-700 text-white focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-colors"
                     >
                       {categories.length === 0 ? (
                         <option value="">Loading categories...</option>
@@ -831,216 +839,227 @@ const ManageProducts: React.FC = () => {
                   </div>
                   
                   {/* Size Selection */}
-                  <div className="mb-4">
-                    <span className="block text-gray-300 mb-2">Available Sizes*</span>
-                    <div className="flex flex-wrap gap-2">
-                      {availableSizes.length === 0 ? (
-                        <div className="text-gray-400 text-sm">Loading sizes...</div>
-                      ) : (
-                        availableSizes.map(size => (
-                          <button
-                            key={size.id}
-                            type="button"
-                            onClick={() => toggleSize(size.id)}
-                            className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                              selectedSizes.includes(size.id)
-                                ? 'bg-gradient-to-r from-orange-500 to-amber-400 text-white'
-                                : 'bg-teal-800 text-white hover:bg-teal-700'
-                            }`}
-                          >
-                            {size.size}
-                          </button>
-                        ))
-                      )}
+                  <div>
+                    <span className="block text-gray-300 mb-2 font-medium">Available Sizes*</span>
+                    <div className="p-3 bg-teal-800/30 border border-teal-700 rounded-md">
+                      <div className="flex flex-wrap gap-2">
+                        {availableSizes.length === 0 ? (
+                          <div className="text-gray-400 text-sm">Loading sizes...</div>
+                        ) : (
+                          availableSizes.map(size => (
+                            <button
+                              key={size.id}
+                              type="button"
+                              onClick={() => toggleSize(size.id)}
+                              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                                selectedSizes.includes(size.id)
+                                  ? 'bg-gradient-to-r from-orange-500 to-amber-400 text-white shadow-md'
+                                  : 'bg-teal-800 text-white hover:bg-teal-700'
+                              }`}
+                            >
+                              {size.size}
+                            </button>
+                          ))
+                        )}
+                      </div>
                     </div>
                   </div>
+                </div>
+                
+                {/* Image Upload */}
+                <div className="border-t border-teal-800 pt-6">
+                  <span className="block text-gray-300 mb-4 font-medium text-lg">
+                    Product Images
+                    {isEditMode && ' (Optional - leave empty to keep existing images)'}
+                  </span>
                   
-                  {/* Image Upload */}
-                  <div className="mb-6">
-                    <span className="block text-gray-300 mb-2">
-                      Product Images
-                      {!isEditMode && '*'}
-                      {isEditMode && ' (Optional - leave empty to keep existing images)'}
-                    </span>
-                    
-                    {/* Existing Images */}
-                    {isEditMode && (imagePreviewUrls.length > 0 || imageUrls.some(url => url.trim() !== '')) && (
-                      <div className="mb-4">
-                        <h4 className="text-sm text-gray-400 mb-2">Existing Images:</h4>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-                          {/* Show existing uploaded images */}
-                          {imagePreviewUrls.map((url, index) => (
-                            <div key={`existing-preview-${index}`} className="relative group">
-                              <img 
-                                src={url} 
-                                alt={`Existing image ${index + 1}`} 
-                                className="h-28 w-full object-cover rounded-md"
-                                onError={(e) => {
-                                  // Fallback if the image fails to load
-                                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/100x100?text=No+Image';
-                                }}
-                              />
-                              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-opacity flex items-center justify-center">
-                                <button
-                                  type="button"
-                                  onClick={() => removeImage(index, 'preview')}
-                                  className="bg-red-500 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                                  aria-label="Remove image"
-                                >
-                                  <X size={16} className="text-white" />
-                                </button>
-                              </div>
-                            </div>
-                          ))}
-                          
-                          {/* Show existing image URLs */}
-                          {imageUrls.filter(url => url.trim() !== '').map((url, index) => (
-                            <div key={`existing-url-${index}`} className="relative group">
-                              <img 
-                                src={url} 
-                                alt={`Existing URL image ${index + 1}`} 
-                                className="h-28 w-full object-cover rounded-md"
-                                onError={(e) => {
-                                  // Fallback if the image fails to load
-                                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/100x100?text=No+Image';
-                                }}
-                              />
-                              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-opacity flex items-center justify-center">
-                                <button
-                                  type="button"
-                                  onClick={() => removeImage(index, 'url')}
-                                  className="bg-red-500 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                                  aria-label="Remove image"
-                                >
-                                  <X size={16} className="text-white" />
-                                </button>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    
-                    {/* New Images Preview */}
-                    {images.length > 0 && (
-                      <div className="mb-4">
-                        <h4 className="text-sm text-gray-400 mb-2">New Images:</h4>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-                          {images.map((file, index) => (
-                            <div key={`new-image-${index}`} className="relative group">
-                              <img 
-                                src={URL.createObjectURL(file)} 
-                                alt={`New image ${index + 1}`} 
-                                className="h-28 w-full object-cover rounded-md"
-                                onError={(e) => {
-                                  // Fallback if the image fails to load
-                                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/100x100?text=No+Image';
-                                }}
-                              />
+                  {/* Existing Images */}
+                  {isEditMode && (imagePreviewUrls.length > 0 || imageUrls.some(url => url.trim() !== '')) && (
+                    <div className="mb-6">
+                      <h4 className="text-sm text-gray-400 mb-3 flex items-center">
+                        <span className="w-1.5 h-1.5 rounded-full bg-teal-400 mr-2"></span> 
+                        Existing Images
+                      </h4>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                        {/* Show existing uploaded images */}
+                        {imagePreviewUrls.map((url, index) => (
+                          <div key={`existing-preview-${index}`} className="relative group rounded-md overflow-hidden shadow-md">
+                            <img 
+                              src={url} 
+                              alt={`Existing image ${index + 1}`} 
+                              className="h-28 w-full object-cover rounded-md transition-transform group-hover:scale-105"
+                              onError={(e) => {
+                                // Fallback if the image fails to load
+                                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/100x100?text=No+Image';
+                              }}
+                            />
+                            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-opacity flex items-center justify-center">
                               <button
                                 type="button"
-                                onClick={() => {
-                                  const updatedImages = [...images];
-                                  updatedImages.splice(index, 1);
-                                  setImages(updatedImages);
-                                }}
-                                className="absolute top-1 right-1 bg-red-500 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                onClick={() => removeImage(index, 'preview')}
+                                className="bg-red-500 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg transform scale-90 group-hover:scale-100"
                                 aria-label="Remove image"
                               >
                                 <X size={16} className="text-white" />
                               </button>
                             </div>
-                          ))}
-                        </div>
+                          </div>
+                        ))}
+                        
+                        {/* Show existing image URLs */}
+                        {imageUrls.filter(url => url.trim() !== '').map((url, index) => (
+                          <div key={`existing-url-${index}`} className="relative group rounded-md overflow-hidden shadow-md">
+                            <img 
+                              src={url} 
+                              alt={`Existing URL image ${index + 1}`} 
+                              className="h-28 w-full object-cover rounded-md transition-transform group-hover:scale-105"
+                              onError={(e) => {
+                                // Fallback if the image fails to load
+                                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/100x100?text=No+Image';
+                              }}
+                            />
+                            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-opacity flex items-center justify-center">
+                              <button
+                                type="button"
+                                onClick={() => removeImage(index, 'url')}
+                                className="bg-red-500 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg transform scale-90 group-hover:scale-100"
+                                aria-label="Remove image"
+                              >
+                                <X size={16} className="text-white" />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    )}
-                    
-                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-teal-700 rounded-md cursor-pointer bg-teal-800/50 hover:bg-teal-800 transition-colors">
-                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                        <Upload className="h-8 w-8 text-teal-500 mb-2" />
-                        <p className="text-sm text-gray-300">Click to upload additional product images</p>
-                        <p className="text-xs text-gray-400 mt-1">PNG, JPG, or WEBP (max 5MB)</p>
-                      </div>
-                      <input 
-                        type="file" 
-                        className="hidden" 
-                        onChange={handleImageChange}
-                        accept="image/png, image/jpeg, image/webp"
-                        multiple
-                      />
-                    </label>
-                  </div>
+                    </div>
+                  )}
                   
-                  {/* Image URLs */}
-                  <div className="mb-6">
-                    <span className="block text-gray-300 mb-2">
-                      Product Image URLs (Optional)
-                    </span>
-                    {imageUrls.map((url, index) => (
-                      <div key={index} className="flex items-center mb-2">
-                        <input
-                          type="url"
-                          value={url}
-                          onChange={(e) => {
-                            const updatedUrls = [...imageUrls];
-                            updatedUrls[index] = e.target.value;
-                            setImageUrls(updatedUrls);
-                          }}
-                          className="flex-1 p-2 rounded-md bg-teal-800 border border-teal-700 text-white"
-                          placeholder="https://example.com/image.jpg"
+                  {/* New Images Preview */}
+                  {images.length > 0 && (
+                    <div className="mb-6">
+                      <h4 className="text-sm text-gray-400 mb-3 flex items-center">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400 mr-2"></span>
+                        New Images
+                      </h4>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                        {images.map((file, index) => (
+                          <div key={`new-image-${index}`} className="relative group rounded-md overflow-hidden shadow-md">
+                            <img 
+                              src={URL.createObjectURL(file)} 
+                              alt={`New image ${index + 1}`} 
+                              className="h-28 w-full object-cover rounded-md transition-transform group-hover:scale-105"
+                              onError={(e) => {
+                                // Fallback if the image fails to load
+                                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/100x100?text=No+Image';
+                              }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const updatedImages = [...images];
+                                updatedImages.splice(index, 1);
+                                setImages(updatedImages);
+                              }}
+                              className="absolute top-1 right-1 bg-red-500 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg transform scale-90 group-hover:scale-100"
+                              aria-label="Remove image"
+                            >
+                              <X size={16} className="text-white" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                      <label className="block mb-3 text-sm text-gray-400">Upload New Images</label>
+                      <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-teal-700 rounded-md cursor-pointer bg-teal-800/20 hover:bg-teal-800/30 transition-colors">
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                          <Upload className="h-8 w-8 text-teal-500 mb-2" />
+                          <p className="text-sm text-gray-300">Click to upload images</p>
+                          <p className="text-xs text-gray-400 mt-1">PNG, JPG, or WEBP (max 5MB)</p>
+                        </div>
+                        <input 
+                          type="file" 
+                          className="hidden" 
+                          onChange={handleImageChange}
+                          accept="image/png, image/jpeg, image/webp"
+                          multiple
                         />
+                      </label>
+                    </div>
+                    
+                    <div>
+                      <label className="block mb-3 text-sm text-gray-400">Image URLs (Optional)</label>
+                      <div className="space-y-2">
+                        {imageUrls.map((url, index) => (
+                          <div key={index} className="flex items-center">
+                            <input
+                              type="url"
+                              value={url}
+                              onChange={(e) => {
+                                const updatedUrls = [...imageUrls];
+                                updatedUrls[index] = e.target.value;
+                                setImageUrls(updatedUrls);
+                              }}
+                              className="flex-1 p-2 rounded-md bg-teal-800/50 border border-teal-700 text-white focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-colors"
+                              placeholder="https://example.com/image.jpg"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeImage(index, 'url')}
+                              className="ml-2 text-red-400 hover:text-red-300 transition-colors p-2"
+                              aria-label="Remove URL"
+                            >
+                              <X size={16} />
+                            </button>
+                          </div>
+                        ))}
                         <button
                           type="button"
-                          onClick={() => removeImage(index, 'url')}
-                          className="ml-2 text-red-400 hover:text-red-300 transition-colors p-2"
-                          aria-label="Remove URL"
+                          onClick={() => setImageUrls([...imageUrls, ''])}
+                          className="text-teal-400 hover:text-teal-300 text-sm mt-1 flex items-center"
                         >
-                          <X size={16} />
+                          <PlusCircle size={16} className="mr-1" />
+                          Add another URL
                         </button>
                       </div>
-                    ))}
-                    <button
-                      type="button"
-                      onClick={() => setImageUrls([...imageUrls, ''])}
-                      className="text-teal-400 hover:text-teal-300 text-sm mt-1 flex items-center"
-                    >
-                      <PlusCircle size={16} className="mr-1" />
-                      Add another URL
-                    </button>
+                    </div>
                   </div>
-                  
-                  {/* Submit and Cancel Buttons */}
-                  <div className="flex space-x-3">
-                    <button
-                      type="submit"
-                      className="btn btn-primary flex-1 py-3 flex items-center justify-center"
-                      disabled={formLoading}
-                    >
-                      {formLoading ? (
-                        <span className="flex items-center">
-                          <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                          Updating...
-                        </span>
-                      ) : (
-                        <span className="flex items-center">
-                          <Check className="h-5 w-5 mr-2" />
-                          Update Product
-                        </span>
-                      )}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleCloseModal}
-                      className="btn btn-secondary py-3 px-6"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </form>
-              )}
+                </div>
+                
+                {/* Submit and Cancel Buttons */}
+                <div className="border-t border-teal-800 pt-6 flex flex-col sm:flex-row gap-3">
+                  <button
+                    type="submit"
+                    className="flex-1 py-3 px-6 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white font-medium rounded-md shadow-lg flex items-center justify-center transition-all transform hover:scale-[1.02]"
+                    disabled={formLoading}
+                  >
+                    {formLoading ? (
+                      <span className="flex items-center">
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Updating...
+                      </span>
+                    ) : (
+                      <span className="flex items-center">
+                        <Check className="h-5 w-5 mr-2" />
+                        Update Product
+                      </span>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCloseModal}
+                    className="py-3 px-6 bg-transparent border border-teal-600 text-teal-400 hover:text-white hover:bg-teal-800/50 font-medium rounded-md transition-all"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}

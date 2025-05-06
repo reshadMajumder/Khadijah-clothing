@@ -79,6 +79,8 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(many=True)
     size = SizeSerializer(many=True)
     category = CategorySerializer()
+    
+
 
     class Meta:
         model = Product
@@ -86,3 +88,4 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     
     def get_images(self, obj):
         return obj.images.all().values('id', 'image', 'image_url')
+    
