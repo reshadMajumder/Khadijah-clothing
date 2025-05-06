@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, AlertCircle } from 'lucide-react';
+import { User, Lock, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import KhadijahLogo from '../../components/ui/KhadijahLogo';
 
 const AdminLoginPage: React.FC = () => {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -23,14 +23,14 @@ const AdminLoginPage: React.FC = () => {
     e.preventDefault();
     setError('');
     
-    if (!email || !password) {
-      setError('Please enter both email and password');
+    if (!username || !password) {
+      setError('Please enter both username and password');
       return;
     }
     
     try {
       setLoading(true);
-      await login(email, password);
+      await login(username, password);
       navigate('/admin');
     } catch (error) {
       console.error('Login error:', error);
@@ -60,22 +60,22 @@ const AdminLoginPage: React.FC = () => {
             
             <form onSubmit={handleLogin}>
               <div className="space-y-4">
-                {/* Email */}
+                {/* Username */}
                 <div>
-                  <label htmlFor="email" className="block text-gray-300 mb-1">
-                    Email
+                  <label htmlFor="username" className="block text-gray-300 mb-1">
+                    Username
                   </label>
                   <div className="relative">
                     <input
-                      type="email"
-                      id="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      type="text"
+                      id="username"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
                       className="input-field pl-10"
-                      placeholder="admin@example.com"
+                      placeholder="admin"
                       required
                     />
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-teal-600" />
+                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-teal-600" />
                   </div>
                 </div>
                 
@@ -118,11 +118,11 @@ const AdminLoginPage: React.FC = () => {
               </div>
             </form>
             
-            {/* <p className="text-center text-gray-400 text-sm mt-6">
+            <p className="text-center text-gray-400 text-sm mt-6">
               For demo purposes, use:<br />
-              Email: admin@khadijah.com<br />
-              Password: admin123
-            </p> */}
+              Username: admin<br />
+              Password: admin
+            </p>
           </div>
         </div>
       </div>

@@ -2,10 +2,11 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import AdminCategorySerializer, AdminProductSerializer,SizeSerializer
+from .serializers import AdminCategorySerializer, AdminProductSerializer,SizeSerializer,ProductDetailSerializer
 from django.http import Http404
-from api.models import Category, Product, Size,ContactUs,Order,OrderItem
+from api.models import Category, Product, Size,ContactUs,Order,OrderItem,ProductImage
 from api.serializers import ContactUsSerializer, OrderItemSerializer,OrderSerializer
+import re
 
 from django.shortcuts import get_object_or_404
 
@@ -252,26 +253,12 @@ class CategoryView(APIView):
 
 
 
-class ProductListCreate(APIView):
-    """   
-    To get products of a category use category uuid.
-    to post use this format:
-    "style_number": "P12345",
-    "gauge": "100",
-    "end": "round",
-    "weight": "200g",
-    "description": "High-quality product",
-    "composition": ["uuid-of-composition-1", "uuid-of-composition-2"],
-    "category": "uuid-of-category",
-    "sub_category": "uuid-of-subcategory",
-    "image": "image.jpg",
-    "images": [{ "image": "image1.jpg"},{ "image": "image2.jpg"} ]
 
-    """
+class ProductListCreate(APIView):
     permission_classes = [permissions.IsAuthenticated]
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
 
     def invalidate_product_cache(self):
-        """Helper method to invalidate product cache"""
         cache.delete('product_list')
 
     def get(self, request, pk=None):
@@ -283,66 +270,103 @@ class ProductListCreate(APIView):
         return Response(serializer.data)
 
     def post(self, request):
-        serializer = AdminProductSerializer(data=request.data)
+        product_data = {
+            'title': request.data.get('title'),
+            'description': request.data.get('description'),
+            'price': request.data.get('price'),
+            'category': request.data.get('category'),
+        }
+
+        size_data = request.data.getlist('size') if hasattr(request.data, 'getlist') else request.data.get('size', [])
+        if isinstance(size_data, str):
+            size_data = [size_data]
+
+        images_data = []
+        for key in request.data.keys():
+            match = re.match(r'images\[(\d+)\]\[(\w+)\]', key)
+            if match:
+                index, field = match.groups()
+                index = int(index)
+                while len(images_data) <= index:
+                    images_data.append({})
+                images_data[index][field] = request.data.get(key) or request.FILES.get(key)
+
+        combined_data = {
+            **product_data,
+            'size': size_data,
+            'images': images_data,
+        }
+
+        serializer = AdminProductSerializer(data=combined_data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
-            self.invalidate_product_cache()  # Clear cache after creation
+            self.invalidate_product_cache()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class ProductDetail(APIView):
-    """
-    API view to handle the details of a single product.
 
-    This view allows for retrieving, updating, and deleting a product
-    based on its primary key (pk).
-
-    Methods:
-    - get_object(pk): Retrieves a product by its primary key.
-    - get(request, pk): Returns the details of a product.
-    - put(request, pk): Updates the details of a product.
-    - delete(request, pk): Deletes a product.
-    """
-    
-    permission_classes = [permissions.IsAuthenticated]
-
-    def invalidate_product_cache(self, pk=None):
-        """Helper method to invalidate product cache"""
-        cache.delete('product_list')
-        if pk:
-            cache.delete(f'product_detail_{pk}')
+class ProductDetailView(APIView):
+    parser_classes = [MultiPartParser, FormParser]
 
     def get_object(self, pk):
         try:
             return Product.objects.get(pk=pk)
         except Product.DoesNotExist:
-            raise Http404
+            return None
 
     def get(self, request, pk):
         product = self.get_object(pk)
-        serializer = AdminProductSerializer(product)
+        if not product:
+            return Response({'error': 'Product not found'}, status=404)
+        serializer = ProductDetailSerializer(product)
         return Response(serializer.data)
 
     def put(self, request, pk):
         product = self.get_object(pk)
-        serializer = AdminProductSerializer(product, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            self.invalidate_product_cache(pk)  # Clear both caches
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if not product:
+            return Response({'error': 'Product not found'}, status=404)
+
+        # Update basic fields only if provided
+        if 'title' in request.data:
+            product.title = request.data['title']
+        if 'description' in request.data:
+            product.description = request.data['description']
+        if 'price' in request.data:
+            product.price = request.data['price']
+        if 'category' in request.data:
+            product.category_id = request.data['category']
+        product.save()
+
+        # Update sizes only if provided
+        if 'size' in request.data:
+            size_ids = request.data.getlist('size')
+            product.size.set(size_ids)
+
+        # Handle new images only if provided
+        i = 0
+        while True:
+            image_file = request.FILES.get(f'images[{i}][image]')
+            image_url = request.data.get(f'images[{i}][image_url]')
+            if not image_file and not image_url:
+                break  # exit loop when no more image data
+            img = ProductImage.objects.create(
+                image=image_file if image_file else None,
+                image_url=image_url if image_url else None
+            )
+            product.images.add(img)
+            i += 1
+        # delete the cache
+        cache.delete('products')
+
+        serializer = ProductDetailSerializer(product)
+        return Response(serializer.data, status=200)
 
     def delete(self, request, pk):
         product = self.get_object(pk)
+        if not product:
+            return Response({'error': 'Product not found'}, status=404)
         product.delete()
-        self.invalidate_product_cache(pk)  # Clear both caches
-        return Response(
-            {'message': 'Product deleted successfully'},
-            status=status.HTTP_204_NO_CONTENT
-        )
-
-
-
+        return Response({'detail': 'Product deleted'}, status=204)
 
 class ContactUsView(APIView):
     permission_classes = [permissions.IsAuthenticated]

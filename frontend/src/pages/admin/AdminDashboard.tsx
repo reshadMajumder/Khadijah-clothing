@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
-import { ShoppingBag, MessageSquare, Users, LogOut, Menu, X } from 'lucide-react';
+import { ShoppingBag, MessageSquare, Users, LogOut, Menu, X, Package } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import KhadijahLogo from '../../components/ui/KhadijahLogo';
 
@@ -8,6 +8,7 @@ import KhadijahLogo from '../../components/ui/KhadijahLogo';
 import OrdersPage from './OrdersPage';
 import ReviewsPage from './ReviewsPage';
 import StaffPage from './StaffPage';
+import ManageProducts from './ManageProducts';
 import AdminNotFound from './AdminNotFound';
 
 const AdminDashboard: React.FC = () => {
@@ -86,6 +87,19 @@ const AdminDashboard: React.FC = () => {
               </li>
               <li>
                 <Link
+                  to="/admin/products"
+                  className={`flex items-center px-4 py-2.5 text-sm rounded-md transition-colors ${
+                    location.pathname === '/admin/products'
+                      ? 'bg-teal-800/50 text-white'
+                      : 'text-gray-300 hover:bg-teal-800/30 hover:text-white'
+                  }`}
+                >
+                  <Package className="h-5 w-5 mr-3" />
+                  Manage Products
+                </Link>
+              </li>
+              <li>
+                <Link
                   to="/admin/reviews"
                   className={`flex items-center px-4 py-2.5 text-sm rounded-md transition-colors ${
                     location.pathname === '/admin/reviews'
@@ -130,6 +144,7 @@ const AdminDashboard: React.FC = () => {
             <Routes>
               <Route path="/" element={<OrdersPage />} />
               <Route path="/orders" element={<OrdersPage />} />
+              <Route path="/products" element={<ManageProducts />} />
               <Route path="/reviews" element={<ReviewsPage />} />
               <Route path="/staff" element={<StaffPage />} />
               <Route path="*" element={<AdminNotFound />} />

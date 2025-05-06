@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { ShoppingBag, Search, Menu, X } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { ShoppingBag, Search, Menu, X, LogOut } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import KhadijahLogo from '../ui/KhadijahLogo';
@@ -10,8 +10,9 @@ const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const location = useLocation();
+  const navigate = useNavigate();
   const { getTotalItems } = useCart();
-  const { currentUser } = useAuth();
+  const { currentUser, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -31,6 +32,15 @@ const Navbar: React.FC = () => {
     e.preventDefault();
     if (searchQuery.trim()) {
       window.location.href = `/?search=${encodeURIComponent(searchQuery)}`;
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/');
+    } catch (error) {
+      console.error('Logout error:', error);
     }
   };
 
@@ -83,11 +93,20 @@ const Navbar: React.FC = () => {
             )}
           </Link>
 
-          {/* Admin Link */}
+          {/* Admin Link or Logout */}
           {currentUser ? (
-            <Link to="/admin" className="text-white hover:text-amber-300 transition-colors text-sm">
-              Dashboard
-            </Link>
+            <div className="flex items-center space-x-3">
+              <Link to="/admin" className="text-white hover:text-amber-300 transition-colors text-sm">
+                Dashboard
+              </Link>
+              <button 
+                onClick={handleLogout}
+                className="flex items-center text-white hover:text-amber-300 transition-colors text-sm"
+              >
+                <LogOut className="h-4 w-4 mr-1" />
+                Logout
+              </button>
+            </div>
           ) : (
             <Link to="/admin/login" className="text-white hover:text-amber-300 transition-colors text-sm">
               Admin
@@ -132,9 +151,18 @@ const Navbar: React.FC = () => {
               </Link>
               
               {currentUser ? (
-                <Link to="/admin" className="text-white hover:text-amber-300 transition-colors py-1">
-                  Dashboard
-                </Link>
+                <div className="flex items-center space-x-3">
+                  <Link to="/admin" className="text-white hover:text-amber-300 transition-colors py-1">
+                    Dashboard
+                  </Link>
+                  <button 
+                    onClick={handleLogout}
+                    className="flex items-center text-white hover:text-amber-300 transition-colors py-1"
+                  >
+                    <LogOut className="h-4 w-4 mr-1" />
+                    Logout
+                  </button>
+                </div>
               ) : (
                 <Link to="/admin/login" className="text-white hover:text-amber-300 transition-colors py-1">
                   Admin

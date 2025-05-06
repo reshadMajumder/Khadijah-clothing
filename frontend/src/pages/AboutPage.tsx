@@ -1,11 +1,42 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ShoppingBag } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { API_BASE_URL } from '../data/ApiUrl';
 
-// Mock Data - Remove when connecting to Firebase
-import { mockStaff } from '../data/mockData';
+// Define the team member interface based on API response
+interface TeamMember {
+  id: string;
+  name: string;
+  position: string;
+  image: string;
+  created_at?: string;
+  updated_at?: string;
+}
 
 const AboutPage: React.FC = () => {
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch team members from API
+  useEffect(() => {
+    const fetchTeamMembers = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}api/team/`);
+        const data = await response.json();
+        
+        if (data.status === 'success' && data.team) {
+          setTeamMembers(data.team);
+        }
+      } catch (error) {
+        console.error('Error fetching team members:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTeamMembers();
+  }, []);
+
   return (
     <div className="pt-24 pb-12 bg-teal-950 min-h-screen">
       {/* Hero Banner */}
@@ -126,24 +157,44 @@ const AboutPage: React.FC = () => {
       {/* Our Team */}
       <div className="container-custom mt-20">
         <h2 className="text-3xl font-bold text-white mb-10 text-center">Meet Our Team</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-          {mockStaff.map(member => (
-            <div key={member.id} className="bg-teal-900 rounded-lg overflow-hidden shadow-md">
-              <div className="h-64 overflow-hidden">
-                <img 
-                  src={member.image} 
-                  alt={member.name} 
-                  className="w-full h-full object-cover object-center transition-transform duration-500 hover:scale-105"
-                />
+        
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+            {[...Array(3)].map((_, index) => (
+              <div key={index} className="bg-teal-900 rounded-lg overflow-hidden animate-pulse">
+                <div className="h-64 bg-teal-800"></div>
+                <div className="p-6">
+                  <div className="h-4 bg-teal-800 rounded w-1/4 mb-2"></div>
+                  <div className="h-6 bg-teal-800 rounded w-3/4 mb-2"></div>
+                  <div className="h-4 bg-teal-800 rounded w-1/2"></div>
+                </div>
               </div>
-              <div className="p-6">
-                <p className="text-sm text-orange-400 mb-1">Staff ID: {member.id}</p>
-                <h3 className="text-xl font-medium text-white">{member.name}</h3>
-                <p className="text-gray-300">{member.role}</p>
+            ))}
+          </div>
+        ) : teamMembers.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+            {teamMembers.map(member => (
+              <div key={member.id} className="bg-teal-900 rounded-lg overflow-hidden shadow-md">
+                <div className="h-64 overflow-hidden">
+                  <img 
+                    src={member.image} 
+                    alt={member.name} 
+                    className="w-full h-full object-cover object-center transition-transform duration-500 hover:scale-105"
+                  />
+                </div>
+                <div className="p-6">
+                  <p className="text-sm text-orange-400 mb-1">{member.position}</p>
+                  <h3 className="text-xl font-medium text-white">{member.name}</h3>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 bg-teal-900/30 rounded-lg">
+            <h3 className="text-xl font-medium text-white mb-2">Our team information is currently being updated</h3>
+            <p className="text-gray-400">Please check back soon to meet our amazing team members.</p>
+          </div>
+        )}
       </div>
     </div>
   );
