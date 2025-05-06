@@ -265,7 +265,7 @@ class ProductListCreate(APIView):
         if pk:
             products = Product.objects.filter(category_id=pk)
         else:
-            products = Product.objects.all()
+            products = Product.objects.all().order_by('-created_at')
         serializer = AdminProductSerializer(products, many=True)
         return Response(serializer.data)
 
@@ -421,7 +421,7 @@ class OrderView(APIView):
             }, status=status.HTTP_200_OK)
         else:
             # Fetch all inquiries
-            orders = Order.objects.all()
+            orders = Order.objects.all().order_by('-created_at')
             serializer = OrderSerializer(orders, many=True)
             return Response({
                 "status": True,
@@ -524,7 +524,7 @@ class ReviewView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def get(self, request):
-        reviews = Review.objects.all()
+        reviews = Review.objects.all().order_by('-created_at')
         serializer = ReviewSerializer(reviews, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     

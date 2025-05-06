@@ -53,6 +53,8 @@ class Product(models.Model):
         db_index=True,
         blank=True
     )
+    created_at = models.DateTimeField(auto_now_add=True,null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True,null=True, blank=True)
 
     def __str__(self):
         return self.title
@@ -61,7 +63,6 @@ class Product(models.Model):
         indexes = [
             models.Index(fields=['title', 'category']),
         ]
-
 
 class Stuff(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False, unique=True)

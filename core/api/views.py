@@ -71,7 +71,7 @@ class ProductList(APIView):
                 products = Product.objects.select_related('category').prefetch_related(
                     Prefetch('size', queryset=Size.objects.only('id', 'size')),
                     Prefetch('images', queryset=ProductImage.objects.only('id', 'image', 'image_url'))
-                ).all()
+                ).order_by('-created_at')
                 cache.set(cache_key, products, timeout=300)  # Cache for 5 minutes
             
             # Reset query log
@@ -123,7 +123,7 @@ class FeaturedProducts(APIView):
                 products = Product.objects.select_related('category').prefetch_related(
                     Prefetch('size', queryset=Size.objects.only('id', 'size')),
                     Prefetch('images', queryset=ProductImage.objects.only('id', 'image', 'image_url'))
-                ).all()[:10]
+                ).order_by('-created_at')[:10]
                 cache.set(cache_key, products, timeout=300)  # Cache for 5 minutes
             
             # Reset query log
@@ -274,15 +274,19 @@ class OrderView(APIView):
         serializer = OrderSerializer(data=request.data)
         if serializer.is_valid():
             # Save the inquiry
-            inquiry = serializer.save()
+            order = serializer.save()
             
-            # Send email notification
-            email_sent = EmailService.send_inquiry_email(inquiry)
+            # Get customer email from request data
+            customer_email = request.data.get('email')
             
-            response_data = OrderSerializer(inquiry).data
+            # Send receipt email to both admin and customer
+            email_sent = EmailService.send_order_receipt(order, customer_email)
             
+            response_data = OrderSerializer(order).data
+            
+            # Handle email sending failures
             if not email_sent:
-                response_data['warning'] = 'Order created but notification email failed'
+                response_data['warning'] = 'Order created but email notification failed'
             
             return Response({
                 "status": True,
