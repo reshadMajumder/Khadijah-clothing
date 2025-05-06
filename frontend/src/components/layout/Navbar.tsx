@@ -69,7 +69,7 @@ const Navbar: React.FC = () => {
         {/* Search, Cart & Admin */}
         <div className="hidden md:flex items-center space-x-4">
           {/* Search Bar */}
-          <form onSubmit={handleSearch} className="relative">
+          {/* <form onSubmit={handleSearch} className="relative">
             <input
               type="text"
               placeholder="Search products..."
@@ -78,7 +78,7 @@ const Navbar: React.FC = () => {
               className="w-48 py-1.5 pl-9 pr-3 rounded-full bg-teal-800/80 border border-teal-700 focus:outline-none focus:border-orange-500 text-white placeholder-teal-400"
             />
             <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 h-4 w-4 text-teal-400" />
-          </form>
+          </form> */}
 
           {/* Cart */}
           <Link 
@@ -126,7 +126,7 @@ const Navbar: React.FC = () => {
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden absolute top-full left-0 w-full bg-teal-900 shadow-lg py-4 px-4 z-50 slide-up">
-          <form onSubmit={handleSearch} className="relative mb-4">
+          {/* <form onSubmit={handleSearch} className="relative mb-4">
             <input
               type="text"
               placeholder="Search products..."
@@ -135,7 +135,7 @@ const Navbar: React.FC = () => {
               className="w-full py-2 pl-9 pr-3 rounded-md bg-teal-800 text-white placeholder-teal-400 border border-teal-700"
             />
             <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 h-4 w-4 text-teal-400" />
-          </form>
+          </form> */}
           
           <nav className="flex flex-col space-y-3">
             <Link to="/" className="text-white hover:text-amber-300 transition-colors py-1">Home</Link>

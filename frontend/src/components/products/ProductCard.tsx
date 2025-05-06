@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingBag } from 'lucide-react';
+import { ShoppingBag, Eye } from 'lucide-react';
 import { useCart, CartProduct } from '../../context/CartContext';
 import toast from 'react-hot-toast';
 
@@ -47,14 +47,27 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             className="w-full h-64 object-cover transform transition-transform duration-500 group-hover:scale-105"
           />
           
-          {/* Quick Add Button */}
-          <button
-            onClick={handleQuickAdd}
-            className="absolute bottom-4 right-4 bg-white text-teal-900 p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-orange-500 hover:text-white"
-            aria-label="Quick add to cart"
-          >
-            <ShoppingBag size={20} />
-          </button>
+          {/* Action Buttons Container */}
+          <div className="absolute bottom-4 right-4 flex space-x-2">
+            {/* View Details Button */}
+            {/* <Link
+              to={`/product/${product.id}`}
+              className="bg-teal-600 text-white p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-teal-500"
+              aria-label="View details"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Eye size={20} />
+            </Link> */}
+            
+            {/* Quick Add Button */}
+            <button
+              onClick={handleQuickAdd}
+              className="bg-white text-teal-900 p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-orange-500 hover:text-white"
+              aria-label="Quick add to cart"
+            >
+              <ShoppingBag size={20} />
+            </button>
+          </div>
         </div>
         
         <div className="p-4">
@@ -72,6 +85,18 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           <p className="text-lg font-semibold">
             ৳ {product.price.toLocaleString()}
           </p>
+          
+          {/* View Details Button (below product info) */}
+          <div className="mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <Link 
+              to={`/product/${product.id}`}
+              className="text-sm text-teal-400 hover:text-teal-300 flex items-center justify-center w-full py-1 border border-teal-700 rounded transition-colors"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Eye size={16} className="mr-1" />
+              View Details
+            </Link>
+          </div>
         </div>
       </Link>
     </div>

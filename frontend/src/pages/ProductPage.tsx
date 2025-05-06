@@ -352,22 +352,7 @@ const ProductPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Product Specifications */}
-        <div className="mt-12 border-t border-teal-800 pt-8">
-          <h2 className="text-2xl font-bold text-white mb-6">Specifications</h2>
-          <div className="bg-teal-900/50 rounded-lg p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <h3 className="text-lg font-medium text-white mb-2">Style Number</h3>
-                <p className="text-gray-300">{product.id.substring(0, 8).toUpperCase()}</p>
-              </div>
-              <div>
-                <h3 className="text-lg font-medium text-white mb-2">Material</h3>
-                <p className="text-gray-300">100% Cotton</p>
-              </div>
-            </div>
-          </div>
-        </div>
+
 
         {/* Related Products */}
         {relatedProducts.length > 0 && (

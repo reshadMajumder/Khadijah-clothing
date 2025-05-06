@@ -199,7 +199,7 @@ const HomePage: React.FC = () => {
       <div className="container-custom mt-12">
         <h2 className="text-2xl font-bold text-white mb-8">
           {activeCategory === 'all' 
-            ? 'Our Collection' 
+            ? 'Featured Products' 
             : categories.find(c => c.id === activeCategory)?.name || 'Collection'}
         </h2>
 
@@ -259,7 +259,7 @@ const HomePage: React.FC = () => {
               <div className="absolute bottom-0 left-0 p-6">
                 <h3 className="text-xl font-semibold text-white mb-2">{category.name}</h3>
                 <Link 
-                  to={`/?category=${category.id}`} 
+                  to={`/products?category=${category.id}`} 
                   className="inline-flex items-center text-orange-400 hover:text-orange-300 transition-colors"
                 >
                   Explore Collection

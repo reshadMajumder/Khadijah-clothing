@@ -133,7 +133,7 @@ class FeaturedProducts(APIView):
             start = time.time()
             
             # Convert to list to execute the query
-            products_list = list(products)
+            products_list = list(products)[:8]
             
             # Print query count and time
             query_count = len(connection.queries)
@@ -323,5 +323,4 @@ class ReviewView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
     

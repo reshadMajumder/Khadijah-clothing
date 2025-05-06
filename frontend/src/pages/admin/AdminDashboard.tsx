@@ -10,6 +10,7 @@ import ReviewsPage from './ReviewsPage';
 import StaffPage from './StaffPage';
 import ManageProducts from './ManageProducts';
 import AdminNotFound from './AdminNotFound';
+import Messages from './Messages';
 
 const AdminDashboard: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -124,7 +125,21 @@ const AdminDashboard: React.FC = () => {
                   Manage Staff
                 </Link>
               </li>
+              <li>
+                <Link
+                  to="/admin/messages"
+                  className={`flex items-center px-4 py-2.5 text-sm rounded-md transition-colors ${
+                    location.pathname === '/admin/messages'
+                      ? 'bg-teal-800/50 text-white'
+                      : 'text-gray-300 hover:bg-teal-800/30 hover:text-white'
+                  }`}
+                >
+                  <MessageSquare className="h-5 w-5 mr-3" />
+                  Manage Messages
+                </Link>
+              </li>   
             </ul>
+
 
             <div className="mt-8 pt-6 border-t border-teal-800">
               <button
@@ -148,6 +163,7 @@ const AdminDashboard: React.FC = () => {
               <Route path="/reviews" element={<ReviewsPage />} />
               <Route path="/staff" element={<StaffPage />} />
               <Route path="*" element={<AdminNotFound />} />
+              <Route path="/messages" element={<Messages />} />
             </Routes>
           </div>
         </div>

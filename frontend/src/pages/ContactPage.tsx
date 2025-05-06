@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '../firebase/config';
 import toast from 'react-hot-toast';
+import { API_BASE_URL } from '../data/ApiUrl';
 
 interface ContactForm {
   name: string;
@@ -58,27 +57,38 @@ const ContactPage: React.FC = () => {
     setLoading(true);
     
     try {
-      // In a real implementation, save to Firebase
-      // const contactData = {
-      //   name: formData.name,
-      //   email: formData.email,
-      //   message: formData.message,
-      //   created_at: serverTimestamp()
-      // };
-      
-      // const docRef = await addDoc(collection(db, 'contacts'), contactData);
-      
-      // For demo, simulate a delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Reset form
-      setFormData({
-        name: '',
-        email: '',
-        message: ''
+      // Send data to backend API
+      const response = await fetch(`${API_BASE_URL}api/contact-us/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          message: formData.message
+        }),
       });
       
-      toast.success('Message sent successfully! We\'ll get back to you soon.');
+      const data = await response.json();
+      
+      if (response.ok) {
+        // Reset form on success
+        setFormData({
+          name: '',
+          email: '',
+          message: ''
+        });
+        
+        toast.success('Message sent successfully! We\'ll get back to you soon.');
+        
+        // Show warning if email notification failed
+        if (data.warning) {
+          toast.error(data.warning);
+        }
+      } else {
+        throw new Error(data.message || 'Failed to send message');
+      }
     } catch (error) {
       console.error('Error submitting contact form:', error);
       toast.error('Failed to send message. Please try again.');
