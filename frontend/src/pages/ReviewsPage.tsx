@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { MessageSquare } from 'lucide-react';
-import { collection, getDocs, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '../firebase/config';
+import { MessageSquare, Star } from 'lucide-react';
 import toast from 'react-hot-toast';
-
-// Mock Data - Remove when connecting to Firebase
-import { mockReviews } from '../data/mockData';
+import { API_BASE_URL } from '../data/ApiUrl';
 
 interface Review {
   id: string;
   name: string;
-  review_text: string;
+  message: string;
+  rating: number;
   approved: boolean;
+  created_at?: string;
 }
 
 const ReviewsPage: React.FC = () => {
@@ -19,33 +17,31 @@ const ReviewsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [newReview, setNewReview] = useState({
     name: '',
-    review_text: ''
+    message: '',
+    rating: 5
   });
+
+  const API_URL = `${API_BASE_URL}api/reviews/`;
 
   // Fetch approved reviews
   useEffect(() => {
-    // In a real implementation, fetch from Firebase
-    // const fetchReviews = async () => {
-    //   try {
-    //     const reviewsCollection = collection(db, 'reviews');
-    //     const q = query(reviewsCollection, where('approved', '==', true));
-    //     const reviewsSnapshot = await getDocs(q);
-    //     const reviewsList = reviewsSnapshot.docs.map(doc => ({
-    //       id: doc.id,
-    //       ...doc.data()
-    //     })) as Review[];
-    //     setReviews(reviewsList);
-    //   } catch (error) {
-    //     console.error('Error fetching reviews:', error);
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // fetchReviews();
-
-    // Using mock data for now - filter for approved
-    setReviews(mockReviews.filter(review => review.approved));
-    setLoading(false);
+    const fetchReviews = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(API_URL);
+        const data = await response.json();
+        // Filter for approved reviews only
+        const approvedReviews = data.filter((review: Review) => review.approved);
+        setReviews(approvedReviews);
+      } catch (error) {
+        console.error('Error fetching reviews:', error);
+        toast.error('Could not load reviews');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchReviews();
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -53,27 +49,40 @@ const ReviewsPage: React.FC = () => {
     setNewReview(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleRatingChange = (rating: number) => {
+    setNewReview(prev => ({ ...prev, rating }));
+  };
+
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!newReview.name.trim() || !newReview.review_text.trim()) {
+    if (!newReview.name.trim() || !newReview.message.trim()) {
       toast.error('Please fill in all fields');
       return;
     }
     
     try {
-      // In a real implementation, add to Firebase
-      // const docRef = await addDoc(collection(db, 'reviews'), {
-      //   name: newReview.name,
-      //   review_text: newReview.review_text,
-      //   approved: false,
-      //   created_at: serverTimestamp()
-      // });
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...newReview,
+          // Reviews submitted by customers are not approved by default
+          approved: false
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to submit review');
+      }
       
       // Reset form
       setNewReview({
         name: '',
-        review_text: ''
+        message: '',
+        rating: 5
       });
       
       toast.success('Your review has been submitted for approval. Thank you!');
@@ -81,6 +90,46 @@ const ReviewsPage: React.FC = () => {
       console.error('Error submitting review:', error);
       toast.error('Failed to submit review. Please try again.');
     }
+  };
+
+  // Render star rating component
+  const StarRating = ({ rating }: { rating: number }) => {
+    return (
+      <div className="flex mt-1">
+        {[...Array(5)].map((_, i) => (
+          <Star 
+            key={i} 
+            className="h-5 w-5" 
+            fill={i < rating ? "#f97316" : "none"} 
+            color={i < rating ? "#f97316" : "#9ca3af"}
+          />
+        ))}
+      </div>
+    );
+  };
+
+  // Interactive star rating selector for form
+  const StarSelector = () => {
+    return (
+      <div className="flex space-x-1">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <button
+            key={star}
+            type="button"
+            onClick={() => handleRatingChange(star)}
+            className="focus:outline-none"
+            aria-label={`Rate ${star} stars`}
+          >
+            <Star 
+              size={24} 
+              className="transition-colors" 
+              fill={star <= newReview.rating ? "#f97316" : "none"} 
+              color={star <= newReview.rating ? "#f97316" : "#9ca3af"}
+            />
+          </button>
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -115,16 +164,10 @@ const ReviewsPage: React.FC = () => {
                       <MessageSquare className="h-10 w-10 text-orange-400 mr-4 flex-shrink-0" />
                       <div>
                         <h3 className="text-lg font-medium text-white">{review.name}</h3>
-                        <div className="flex mt-1">
-                          {[...Array(5)].map((_, i) => (
-                            <svg key={i} className="h-5 w-5 text-orange-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118l-2.799-2.034c-.784-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
-                            </svg>
-                          ))}
-                        </div>
+                        <StarRating rating={review.rating || 0} />
                       </div>
                     </div>
-                    <p className="text-gray-300">{review.review_text}</p>
+                    <p className="text-gray-300">{review.message}</p>
                   </div>
                 ))}
               </div>
@@ -167,15 +210,23 @@ const ReviewsPage: React.FC = () => {
                     />
                   </div>
                   
+                  {/* Rating */}
+                  <div>
+                    <label htmlFor="rating" className="block text-gray-300 mb-1 text-sm">
+                      Your Rating
+                    </label>
+                    <StarSelector />
+                  </div>
+                  
                   {/* Review Text */}
                   <div>
-                    <label htmlFor="review_text" className="block text-gray-300 mb-1 text-sm">
+                    <label htmlFor="message" className="block text-gray-300 mb-1 text-sm">
                       Your Review
                     </label>
                     <textarea
-                      id="review_text"
-                      name="review_text"
-                      value={newReview.review_text}
+                      id="message"
+                      name="message"
+                      value={newReview.message}
                       onChange={handleInputChange}
                       className="input-field min-h-[120px]"
                       required

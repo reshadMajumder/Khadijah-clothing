@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path
-from .views import ProductList, ProductDetail, ContactUsView, OrderView, CategoryList, SizeView, FeaturedProducts, StuffView
+from .views import ProductList, ProductDetail, ContactUsView, OrderView, CategoryList, SizeView, FeaturedProducts, StuffView, ReviewView
 
 
 
@@ -15,4 +15,5 @@ urlpatterns = [
     path('featured-products/', FeaturedProducts.as_view(), name='featured-products'),
     path('team/', StuffView.as_view(), name='team'),
     path('stuff/', StuffView.as_view(), name='stuff'),
+    path('reviews/', ReviewView.as_view(), name='reviews'),
 ] 

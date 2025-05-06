@@ -8,7 +8,8 @@ from .models import (
     ContactUs, 
     Order, 
     OrderItem,
-    Stuff
+    Stuff,
+    Review,
 )
 
 
@@ -141,16 +142,26 @@ class OrderSerializer(serializers.ModelSerializer):
     
     
 class StuffSerializers(serializers.ModelSerializer):
-    image = serializers.SerializerMethodField()
+    image = serializers.ImageField(required=False)
     
     class Meta:
         model = Stuff
         fields = ['id', 'name', 'position', 'image', 'created_at', 'updated_at']
     
-    def get_image(self, obj):
-        if obj.image:
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        if instance.image:
             request = self.context.get('request')
             if request is not None:
-                return request.build_absolute_uri(obj.image.url)
-            return obj.image.url
-        return None
+                representation['image'] = request.build_absolute_uri(instance.image.url)
+            else:
+                representation['image'] = instance.image.url
+        else:
+            representation['image'] = None
+        return representation
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = ['id', 'name', 'message', 'rating', 'approved', 'created_at', 'updated_at']

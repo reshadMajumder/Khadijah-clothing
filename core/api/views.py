@@ -7,7 +7,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie
 from django.db.models import Prefetch
-from .models import Product, ProductImage, Size, Category, ContactUs, Order, OrderItem,Stuff
+from .models import Product, ProductImage, Size, Category, ContactUs, Order, OrderItem,Stuff,Review
 from .serializers import (
     ProductSerializer, 
     ProductDetailSerializer, 
@@ -17,7 +17,7 @@ from .serializers import (
     OrderItemSerializer,
     SizeSerializer,
     StuffSerializers,
-
+    ReviewSerializer,
 
 
 )
@@ -298,6 +298,7 @@ class OrderView(APIView):
 
 
 class StuffView(APIView):
+
     def get(self, request):
         stuff = Stuff.objects.all()
         serializer = StuffSerializers(stuff, many=True, context={'request': request})
@@ -306,3 +307,21 @@ class StuffView(APIView):
             'message': 'Team members fetched successfully',
             'team': serializer.data
         }, status=status.HTTP_200_OK)
+    
+
+class ReviewView(APIView):
+    def get(self, request):
+        """Get all approved reviews for public display"""
+        reviews = Review.objects.filter(approved=True)
+        serializer = ReviewSerializer(reviews, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def post(self, request):
+        """Submit a new review (will be unapproved by default)"""
+        serializer = ReviewSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    

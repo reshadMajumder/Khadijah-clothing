@@ -4,8 +4,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializers import AdminCategorySerializer, AdminProductSerializer,SizeSerializer,ProductDetailSerializer
 from django.http import Http404
-from api.models import Category, Product, Size,ContactUs,Order,OrderItem,ProductImage
-from api.serializers import ContactUsSerializer, OrderItemSerializer,OrderSerializer
+from api.models import Category, Product, Size,ContactUs,Order,OrderItem,ProductImage,Stuff,Review
+from api.serializers import ContactUsSerializer, OrderItemSerializer,OrderSerializer,StuffSerializers,ReviewSerializer
 import re
 
 from django.shortcuts import get_object_or_404
@@ -456,5 +456,89 @@ class OrderView(APIView):
             "message": "Inquiry deleted successfully"
         }, status=status.HTTP_204_NO_CONTENT)
         
-  
+
+
+class StuffView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+    def get(self, request):
+        stuff = Stuff.objects.all()
+        serializer = StuffSerializers(stuff, many=True, context={'request': request})
+        return Response(serializer.data)
     
+    def post(self, request):
+        # Create data dict to ensure proper handling of form data
+        data = {
+            'name': request.data.get('name'),
+            'position': request.data.get('position'),
+        }
+        
+        # Handle image file if provided
+        if 'image' in request.FILES:
+            data['image'] = request.FILES['image']
+            
+        serializer = StuffSerializers(data=data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def put(self, request, pk):
+        stuff = get_object_or_404(Stuff, id=pk)
+        
+        # Create data dict to ensure proper handling of form data
+        data = {
+            'name': request.data.get('name', stuff.name),
+            'position': request.data.get('position', stuff.position),
+        }
+        
+        # Handle image file if provided
+        if 'image' in request.FILES:
+            data['image'] = request.FILES['image']
+            
+        serializer = StuffSerializers(stuff, data=data, partial=True, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, pk):
+        stuff = get_object_or_404(Stuff, id=pk)
+        stuff.delete()
+        return Response({
+            'status': 'success',
+            'message': 'Stuff deleted successfully'
+        }, status=status.HTTP_204_NO_CONTENT)
+
+
+
+
+class ReviewView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    def post(self, request):
+        serializer = ReviewSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def get(self, request):
+        reviews = Review.objects.all()
+        serializer = ReviewSerializer(reviews, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def put(self, request, pk):
+        review = get_object_or_404(Review, id=pk)
+        serializer = ReviewSerializer(review, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  
+    
+    def delete(self, request, pk):
+        review = get_object_or_404(Review, id=pk)
+        review.delete()
+        return Response({
+            'status': 'success',
+            'message': 'Review deleted successfully'
+        }, status=status.HTTP_204_NO_CONTENT)

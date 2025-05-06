@@ -1,62 +1,83 @@
 import React, { useState, useEffect } from 'react';
-import { Check, Trash2, Plus, MessageSquare } from 'lucide-react';
-import { collection, getDocs, doc, deleteDoc, updateDoc, addDoc } from 'firebase/firestore';
-import { db } from '../../firebase/config';
+import { Check, Trash2, Plus, MessageSquare, X, Star, Edit } from 'lucide-react';
 import toast from 'react-hot-toast';
-
-// Mock Data - Remove when connecting to Firebase
-import { mockReviews } from '../../data/mockData';
+import { useAuth } from '../../context/AuthContext';
+import { API_BASE_URL } from '../../data/ApiUrl';
 
 interface Review {
   id: string;
   name: string;
-  review_text: string;
+  message: string;
+  rating: number;
   approved: boolean;
+  created_at?: string;
+  updated_at?: string;
 }
 
 const ReviewsPage: React.FC = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [newReview, setNewReview] = useState({
+  const [showModal, setShowModal] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentReview, setCurrentReview] = useState<Review>({
+    id: '',
     name: '',
-    review_text: '',
+    message: '',
+    rating: 5,
     approved: true
   });
+  
+  const { authTokens } = useAuth();
+  const API_URL = `${API_BASE_URL}api/admin/reviews/`;
 
   // Fetch reviews
-  useEffect(() => {
-    // In a real implementation, fetch from Firebase
-    // const fetchReviews = async () => {
-    //   try {
-    //     const reviewsCollection = collection(db, 'reviews');
-    //     const reviewsSnapshot = await getDocs(reviewsCollection);
-    //     const reviewsList = reviewsSnapshot.docs.map(doc => ({
-    //       id: doc.id,
-    //       ...doc.data()
-    //     })) as Review[];
-    //     setReviews(reviewsList);
-    //   } catch (error) {
-    //     console.error('Error fetching reviews:', error);
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // fetchReviews();
+  const fetchReviews = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(API_URL, {
+        headers: {
+          Authorization: `Bearer ${authTokens?.access}`
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to load reviews');
+      }
+      
+      const data = await response.json();
+      setReviews(data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+      toast.error('Failed to load reviews');
+      setLoading(false);
+    }
+  };
 
-    // Using mock data for now
-    setReviews(mockReviews);
-    setLoading(false);
-  }, []);
+  useEffect(() => {
+    if (authTokens?.access) {
+      fetchReviews();
+    }
+  }, [authTokens]);
 
   const approveReview = async (reviewId: string) => {
     try {
-      // In a real implementation, update in Firebase
-      // await updateDoc(doc(db, 'reviews', reviewId), {
-      //   approved: true
-      // });
+      const review = reviews.find(r => r.id === reviewId);
+      if (!review) return;
       
-      // Update locally for demo
+      const response = await fetch(`${API_URL}${reviewId}/`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authTokens?.access}`
+        },
+        body: JSON.stringify({ ...review, approved: true })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to approve review');
+      }
+      
       setReviews(prevReviews => 
         prevReviews.map(review => 
           review.id === reviewId ? { ...review, approved: true } : review
@@ -74,12 +95,18 @@ const ReviewsPage: React.FC = () => {
     if (!confirm('Are you sure you want to delete this review?')) return;
     
     try {
-      // In a real implementation, delete from Firebase
-      // await deleteDoc(doc(db, 'reviews', reviewId));
+      const response = await fetch(`${API_URL}${reviewId}/`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${authTokens?.access}`
+        }
+      });
       
-      // Remove locally for demo
+      if (!response.ok) {
+        throw new Error('Failed to delete review');
+      }
+      
       setReviews(prevReviews => prevReviews.filter(review => review.id !== reviewId));
-      
       toast.success('Review deleted successfully');
     } catch (error) {
       console.error('Error deleting review:', error);
@@ -89,44 +116,41 @@ const ReviewsPage: React.FC = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setNewReview(prev => ({ ...prev, [name]: value }));
+    setCurrentReview(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target;
+    setCurrentReview(prev => ({ ...prev, [name]: checked }));
   };
 
   const handleAddReview = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!newReview.name.trim() || !newReview.review_text.trim()) {
+    if (!currentReview.name.trim() || !currentReview.message.trim()) {
       toast.error('Please fill in all fields');
       return;
     }
     
     try {
-      // In a real implementation, add to Firebase
-      // const docRef = await addDoc(collection(db, 'reviews'), {
-      //   name: newReview.name,
-      //   review_text: newReview.review_text,
-      //   approved: newReview.approved,
-      //   created_at: serverTimestamp()
-      // });
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authTokens?.access}`
+        },
+        body: JSON.stringify(currentReview)
+      });
       
-      // Add locally for demo
-      const newId = `review${reviews.length + 1}`;
-      const reviewToAdd = {
-        id: newId,
-        name: newReview.name,
-        review_text: newReview.review_text,
-        approved: newReview.approved
-      };
+      if (!response.ok) {
+        throw new Error('Failed to add review');
+      }
       
-      setReviews(prevReviews => [...prevReviews, reviewToAdd]);
+      const data = await response.json();
+      setReviews(prevReviews => [...prevReviews, data]);
       
       // Reset form and close modal
-      setNewReview({
-        name: '',
-        review_text: '',
-        approved: true
-      });
-      setShowAddModal(false);
+      resetForm();
       
       toast.success('Review added successfully');
     } catch (error) {
@@ -135,12 +159,82 @@ const ReviewsPage: React.FC = () => {
     }
   };
 
+  const handleUpdateReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!currentReview.name.trim() || !currentReview.message.trim()) {
+      toast.error('Please fill in all fields');
+      return;
+    }
+    
+    try {
+      const response = await fetch(`${API_URL}${currentReview.id}/`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authTokens?.access}`
+        },
+        body: JSON.stringify(currentReview)
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update review');
+      }
+      
+      const data = await response.json();
+      
+      setReviews(prevReviews => 
+        prevReviews.map(review => 
+          review.id === currentReview.id ? data : review
+        )
+      );
+      
+      // Reset form and close modal
+      resetForm();
+      
+      toast.success('Review updated successfully');
+    } catch (error) {
+      console.error('Error updating review:', error);
+      toast.error('Failed to update review');
+    }
+  };
+
+  const openAddModal = () => {
+    setIsEditing(false);
+    setCurrentReview({
+      id: '',
+      name: '',
+      message: '',
+      rating: 5,
+      approved: true
+    });
+    setShowModal(true);
+  };
+
+  const openEditModal = (review: Review) => {
+    setIsEditing(true);
+    setCurrentReview(review);
+    setShowModal(true);
+  };
+
+  const resetForm = () => {
+    setCurrentReview({
+      id: '',
+      name: '',
+      message: '',
+      rating: 5,
+      approved: true
+    });
+    setShowModal(false);
+    setIsEditing(false);
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-white">Manage Reviews</h1>
         <button
-          onClick={() => setShowAddModal(true)}
+          onClick={openAddModal}
           className="btn btn-primary text-sm"
         >
           <Plus size={16} className="mr-1" />
@@ -166,6 +260,7 @@ const ReviewsPage: React.FC = () => {
                   <tr className="border-b border-teal-800">
                     <th className="text-left py-3 px-4 text-gray-300 font-medium">Customer</th>
                     <th className="text-left py-3 px-4 text-gray-300 font-medium">Review</th>
+                    <th className="text-left py-3 px-4 text-gray-300 font-medium">Rating</th>
                     <th className="text-left py-3 px-4 text-gray-300 font-medium">Status</th>
                     <th className="text-left py-3 px-4 text-gray-300 font-medium">Actions</th>
                   </tr>
@@ -177,7 +272,12 @@ const ReviewsPage: React.FC = () => {
                       className="border-b border-teal-800/50 hover:bg-teal-800/20"
                     >
                       <td className="py-3 px-4 text-white">{review.name}</td>
-                      <td className="py-3 px-4 text-gray-300 max-w-xs truncate">{review.review_text}</td>
+                      <td className="py-3 px-4 text-gray-300 max-w-xs truncate">{review.message}</td>
+                      <td className="py-3 px-4 text-yellow-400">
+                        <div className="flex items-center">
+                          {review.rating || 0} <Star size={14} className="ml-1" />
+                        </div>
+                      </td>
                       <td className="py-3 px-4">
                         <span className={`inline-flex px-2 py-1 text-xs rounded-full ${
                           review.approved
@@ -189,6 +289,13 @@ const ReviewsPage: React.FC = () => {
                       </td>
                       <td className="py-3 px-4">
                         <div className="flex space-x-2">
+                          <button
+                            onClick={() => openEditModal(review)}
+                            className="p-1.5 bg-blue-900/30 text-blue-400 rounded-md hover:bg-blue-900/50 transition-colors"
+                            title="Edit Review"
+                          >
+                            <Edit size={16} />
+                          </button>
                           {!review.approved && (
                             <button
                               onClick={() => approveReview(review.id)}
@@ -224,7 +331,7 @@ const ReviewsPage: React.FC = () => {
             When customers submit reviews, they will appear here for approval.
           </p>
           <button
-            onClick={() => setShowAddModal(true)}
+            onClick={openAddModal}
             className="btn btn-primary"
           >
             <Plus size={16} className="mr-1" />
@@ -233,21 +340,24 @@ const ReviewsPage: React.FC = () => {
         </div>
       )}
 
-      {/* Add Review Modal */}
-      {showAddModal && (
+      {/* Add/Edit Review Modal */}
+      {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-teal-900 rounded-lg shadow-lg max-w-md w-full overflow-hidden">
             <div className="flex justify-between items-center p-4 border-b border-teal-800">
-              <h3 className="text-lg font-bold text-white">Add New Review</h3>
+              <h3 className="text-lg font-bold text-white">
+                {isEditing ? 'Edit Review' : 'Add New Review'}
+              </h3>
               <button
-                onClick={() => setShowAddModal(false)}
+                onClick={resetForm}
                 className="text-gray-400 hover:text-white transition-colors"
+                title="Close modal"
               >
                 <X size={20} />
               </button>
             </div>
             
-            <form onSubmit={handleAddReview} className="p-6">
+            <form onSubmit={isEditing ? handleUpdateReview : handleAddReview} className="p-6">
               <div className="space-y-4">
                 {/* Reviewer Name */}
                 <div>
@@ -258,7 +368,7 @@ const ReviewsPage: React.FC = () => {
                     type="text"
                     id="name"
                     name="name"
-                    value={newReview.name}
+                    value={currentReview.name}
                     onChange={handleInputChange}
                     className="input-field"
                     required
@@ -267,17 +377,46 @@ const ReviewsPage: React.FC = () => {
                 
                 {/* Review Text */}
                 <div>
-                  <label htmlFor="review_text" className="block text-gray-300 mb-1">
+                  <label htmlFor="message" className="block text-gray-300 mb-1">
                     Review Text
                   </label>
                   <textarea
-                    id="review_text"
-                    name="review_text"
-                    value={newReview.review_text}
+                    id="message"
+                    name="message"
+                    value={currentReview.message}
                     onChange={handleInputChange}
                     className="input-field min-h-[120px]"
                     required
                   />
+                </div>
+                
+                {/* Rating */}
+                <div>
+                  <label htmlFor="rating" className="block text-gray-300 mb-1">
+                    Rating (1-5)
+                  </label>
+                  <div className="flex items-center">
+                    <input
+                      type="number"
+                      id="rating"
+                      name="rating"
+                      min="1"
+                      max="5"
+                      value={currentReview.rating}
+                      onChange={handleInputChange}
+                      className="input-field w-20"
+                      required
+                    />
+                    <div className="flex ml-2 text-yellow-400">
+                      {[...Array(5)].map((_, i) => (
+                        <Star 
+                          key={i} 
+                          size={16} 
+                          fill={i < currentReview.rating ? "currentColor" : "none"} 
+                        />
+                      ))}
+                    </div>
+                  </div>
                 </div>
                 
                 {/* Approved Status */}
@@ -286,19 +425,19 @@ const ReviewsPage: React.FC = () => {
                     type="checkbox"
                     id="approved"
                     name="approved"
-                    checked={newReview.approved}
-                    onChange={(e) => setNewReview(prev => ({ ...prev, approved: e.target.checked }))}
+                    checked={currentReview.approved}
+                    onChange={handleCheckboxChange}
                     className="h-4 w-4 rounded bg-teal-800 border-teal-600 text-orange-500 focus:ring-orange-500"
                   />
                   <label htmlFor="approved" className="ml-2 text-gray-300">
-                    Approve immediately
+                    Approve review
                   </label>
                 </div>
                 
                 <div className="flex justify-end mt-6 space-x-3">
                   <button
                     type="button"
-                    onClick={() => setShowAddModal(false)}
+                    onClick={resetForm}
                     className="px-4 py-2 bg-teal-800 text-white rounded-md hover:bg-teal-700 transition-colors"
                   >
                     Cancel
@@ -307,7 +446,7 @@ const ReviewsPage: React.FC = () => {
                     type="submit"
                     className="btn btn-primary"
                   >
-                    Add Review
+                    {isEditing ? 'Update Review' : 'Add Review'}
                   </button>
                 </div>
               </div>
