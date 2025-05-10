@@ -165,7 +165,7 @@ class CategoryView(APIView):
         """
         try:
             categories = Category.objects.all()
-            serializer = AdminCategorySerializer(categories, many=True)
+            serializer = AdminCategorySerializer(categories, many=True, context={'request': request})
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -180,7 +180,13 @@ class CategoryView(APIView):
         Returns:
             Response: The created category data with HTTP status 201 or error details with HTTP status 400.
         """
-        serializer = AdminCategorySerializer(data=request.data)
+        data = {
+            'name': request.data.get('name'),
+            'image_file': request.FILES.get('image')
+        }
+        
+        serializer = AdminCategorySerializer(data=data, context={'request': request})
+
         if serializer.is_valid():
             serializer.save()
             self.invalidate_category_cache()
@@ -196,29 +202,13 @@ class CategoryView(APIView):
         except Category.DoesNotExist:
             return Response({'error': 'Category not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        # Create a mutable copy of the data without copying the file
-        data = {}
-        data['name'] = request.data.get('name')
-        
-        # Handle image separately
-        if 'image' in request.FILES:
-            data['image'] = request.FILES['image']
-        
-        # Handle subcategories
-        if 'subcategories' in request.data:
-            try:
-                subcategories = request.data['subcategories']
-                if isinstance(subcategories, str):
-                    data['subcategories'] = json.loads(subcategories)
-                else:
-                    data['subcategories'] = subcategories
-            except json.JSONDecodeError:
-                return Response(
-                    {'error': 'Invalid subcategories data'}, 
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+        data = {
+            'name': request.data.get('name'),
+            'image_file': request.FILES.get('image')
+        }
 
-        serializer = AdminCategorySerializer(category, data=data, partial=True)
+        serializer = AdminCategorySerializer(category, data=data, partial=True, context={'request': request})
+
         if serializer.is_valid():
             serializer.save()
             self.invalidate_category_cache()

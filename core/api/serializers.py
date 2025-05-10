@@ -147,7 +147,7 @@ class StuffSerializers(serializers.ModelSerializer):
     class Meta:
         model = Stuff
         fields = ['id', 'name', 'position', 'image', 'created_at', 'updated_at']
-    
+
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         if instance.image:

@@ -10,10 +10,44 @@ class CompositionSeriallizer(serializers.ModelSerializer):
 
 
 class AdminCategorySerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+    image_file = serializers.ImageField(write_only=True, required=False)
 
     class Meta:
         model = Category
-        fields = '__all__'
+        fields = ['id', 'name', 'image', 'image_file']
+
+    def create(self, validated_data):
+        image_file = validated_data.pop('image_file', None)
+        category = Category.objects.create(**validated_data)
+        
+        if image_file:
+            category.image = image_file
+            category.save()
+            
+        cache.delete('categories')
+        return category
+
+    def update(self, instance, validated_data):
+        image_file = validated_data.pop('image_file', None)
+        
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+            
+        if image_file:
+            instance.image = image_file
+            
+        instance.save()
+        cache.delete('categories')
+        return instance
+    
+    def get_image(self, obj):
+        request = self.context.get('request')
+        if obj.image and request:
+            return request.build_absolute_uri(obj.image.url)
+        return None
+
+
 
 
 

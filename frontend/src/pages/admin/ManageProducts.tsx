@@ -356,7 +356,7 @@ const ManageProducts: React.FC = () => {
     }
     
     // Show modal after setting all data
-    setShowModal(true);
+      setShowModal(true);
   };
 
   // Close modal and reset form

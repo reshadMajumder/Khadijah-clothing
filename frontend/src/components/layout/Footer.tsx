@@ -1,10 +1,39 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { PhoneCall, Mail, MapPin, Facebook, Instagram, Twitter } from 'lucide-react';
 import KhadijahLogo from '../ui/KhadijahLogo';
+import { API_BASE_URL } from '../../data/ApiUrl';
+
+interface Category {
+  id: string;
+  name: string;
+  image?: string;
+}
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch categories from API
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}api/categories/`);
+        const data = await response.json();
+        
+        if (data.status === 'success' && data.categories) {
+          setCategories(data.categories);
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   return (
     <footer className="bg-teal-950 border-t border-teal-800 pt-12 pb-6">
@@ -19,22 +48,22 @@ const Footer: React.FC = () => {
               Elevating women's fashion with elegant pieces that blend tradition and contemporary style.
             </p>
             <div className="flex space-x-4">
-              <a 
-                href="#" 
+              <a
+                href="#"
                 className="text-gray-400 hover:text-orange-500 transition-colors"
                 aria-label="Facebook"
               >
                 <Facebook size={18} />
               </a>
-              <a 
-                href="#" 
+              <a
+                href="#"
                 className="text-gray-400 hover:text-orange-500 transition-colors"
                 aria-label="Instagram"
               >
                 <Instagram size={18} />
               </a>
-              <a 
-                href="#" 
+              <a
+                href="#"
                 className="text-gray-400 hover:text-orange-500 transition-colors"
                 aria-label="Twitter"
               >
@@ -79,31 +108,25 @@ const Footer: React.FC = () => {
           <div className="col-span-1">
             <h3 className="text-white text-lg font-semibold mb-4">Categories</h3>
             <ul className="space-y-2">
-              <li>
-                <Link to="/?category=sarees" className="text-gray-300 hover:text-orange-500 transition-colors text-sm">
-                  Sarees
-                </Link>
-              </li>
-              <li>
-                <Link to="/?category=kurtis" className="text-gray-300 hover:text-orange-500 transition-colors text-sm">
-                  Kurtis
-                </Link>
-              </li>
-              <li>
-                <Link to="/?category=gowns" className="text-gray-300 hover:text-orange-500 transition-colors text-sm">
-                  Gowns
-                </Link>
-              </li>
-              <li>
-                <Link to="/?category=traditional" className="text-gray-300 hover:text-orange-500 transition-colors text-sm">
-                  Traditional Wear
-                </Link>
-              </li>
-              <li>
-                <Link to="/?category=accessories" className="text-gray-300 hover:text-orange-500 transition-colors text-sm">
-                  Accessories
-                </Link>
-              </li>
+              {loading ? (
+                // Loading skeleton
+                [...Array(5)].map((_, index) => (
+                  <li key={index} className="h-4 bg-teal-800/30 rounded animate-pulse"></li>
+                ))
+              ) : categories.length === 0 ? (
+                <li className="text-gray-400 text-sm">No categories available</li>
+              ) : (
+                categories.map(category => (
+                  <li key={category.id}>
+                    <Link 
+                      to={`/?category=${category.id}`} 
+                      className="text-gray-300 hover:text-orange-500 transition-colors text-sm"
+                    >
+                      {category.name}
+                    </Link>
+                  </li>
+                ))
+              )}
             </ul>
           </div>
 
@@ -114,19 +137,31 @@ const Footer: React.FC = () => {
               <li className="flex items-start">
                 <MapPin className="h-5 w-5 text-orange-500 mr-2 mt-0.5" />
                 <span className="text-gray-300 text-sm">
-                  123 Fashion Street, Dhaka, Bangladesh
+                  Sadik Tower, Nayasarak, sylhet sadar, Sylhet, Bangladesh
                 </span>
               </li>
               <li className="flex items-center">
                 <PhoneCall className="h-5 w-5 text-orange-500 mr-2" />
-                <a href="tel:+8801700000000" className="text-gray-300 hover:text-orange-500 transition-colors text-sm">
-                  +880 170 000 0000
+                <a href="tel:+880298837165" className="text-gray-300 hover:text-orange-500 transition-colors text-sm">
+                  +880298837165
+                </a>
+              </li>
+              <li className="flex items-center">
+                <PhoneCall className="h-5 w-5 text-orange-500 mr-2" />
+                <a href="tel:+880298837166" className="text-gray-300 hover:text-orange-500 transition-colors text-sm">
+                  +880298837166
+                </a>
+              </li>
+              <li className="flex items-center">
+                <PhoneCall className="h-5 w-5 text-orange-500 mr-2" />
+                <a href="tel:+880198643225" className="text-gray-300 hover:text-orange-500 transition-colors text-sm">
+                  +880198643225
                 </a>
               </li>
               <li className="flex items-center">
                 <Mail className="h-5 w-5 text-orange-500 mr-2" />
-                <a href="mailto:info@khadijah.com" className="text-gray-300 hover:text-orange-500 transition-colors text-sm">
-                  info@khadijah.com
+                <a href="mailto:admin@khadijahclothing.com" className="text-gray-300 hover:text-orange-500 transition-colors text-sm">
+                  admin@khadijahclothing.com
                 </a>
               </li>
             </ul>

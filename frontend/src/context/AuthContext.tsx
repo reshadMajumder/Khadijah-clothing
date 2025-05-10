@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { API_BASE_URL } from '../data/ApiUrl';
 
 interface AuthUser {
   username: string;
@@ -53,7 +54,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (username: string, password: string) => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/accounts/login/', {
+      const response = await fetch(`${API_BASE_URL}api/accounts/login/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -94,7 +95,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Only proceed if we have a refresh token
       if (authTokens?.refresh) {
         // Send logout request to backend
-        await fetch('http://127.0.0.1:8000/api/accounts/logout/', {
+        await fetch(`${API_BASE_URL}api/accounts/logout/`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
