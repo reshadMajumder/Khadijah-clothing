@@ -398,116 +398,113 @@ const ManageProducts: React.FC = () => {
 
     // Validation
     if (!title || !description || !price || selectedSizes.length === 0 || !categoryId) {
-      setError('Please fill in all fields and select at least one size');
-      return;
+        setError('Please fill in all fields and select at least one size');
+        return;
     }
 
     // For new products, require at least one image or image URL
     if (!isEditMode && images.length === 0 && imageUrls.every(url => url.trim() === '')) {
-      setError('Please upload or provide at least one product image or image URL');
-      return;
+        setError('Please upload or provide at least one product image or image URL');
+        return;
     }
 
     setFormLoading(true);
 
     try {
-      const formData = new FormData();
-      
-      // Only append fields that have been changed
-      if (title !== (isEditMode ? products.find(p => p.id === editProductId)?.title : '')) {
-        formData.append('title', title);
-      }
-      if (price !== (isEditMode ? products.find(p => p.id === editProductId)?.price.toString() : '')) {
-        formData.append('price', price.toString());
-      }
-      if (categoryId !== (isEditMode ? products.find(p => p.id === editProductId)?.category.id : '')) {
-        formData.append('category', categoryId);
-      }
-      if (description !== (isEditMode ? products.find(p => p.id === editProductId)?.description : '')) {
-        formData.append('description', description);
-      }
-
-      // Only append sizes if they've changed
-      if (isEditMode) {
-        const currentProduct = products.find(p => p.id === editProductId);
-        const currentSizeIds = currentProduct?.size.map(s => s.id) || [];
-        const sizesChanged = selectedSizes.length !== currentSizeIds.length ||
-          !selectedSizes.every(id => currentSizeIds.includes(id));
+        const formData = new FormData();
         
-        if (sizesChanged) {
-          selectedSizes.forEach(sizeId => {
-            formData.append('size', sizeId);
-          });
-        }
-      } else {
+        // Always append these fields for updates
+        formData.append('title', title);
+        formData.append('price', price.toString());
+        formData.append('category', categoryId);
+        formData.append('description', description);
+
+        // Append sizes
         selectedSizes.forEach(sizeId => {
-          formData.append('size', sizeId);
+            formData.append('size', sizeId);
         });
-      }
 
-      // Only append new images
-      if (images.length > 0) {
-        images.forEach((image, index) => {
-          formData.append(`images[${index}][image]`, image);
-        });
-      }
-
-      // Only append new image URLs
-      const filteredUrls = imageUrls.filter(url => url.trim() !== '');
-      if (filteredUrls.length > 0) {
-        filteredUrls.forEach((url, index) => {
-          formData.append(`images[${index}][image_url]`, url.trim());
-        });
-      }
-
-      let url = `${API_BASE_URL}api/admin/products/`;
-      let method = 'POST';
-
-      if (isEditMode && editProductId) {
-        url = `${API_BASE_URL}api/admin/products/${editProductId}/`;
-        method = 'PUT';
-      }
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Authorization': `Bearer ${authTokens?.access}`,
-        },
-        body: formData,
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || `Failed to ${isEditMode ? 'update' : 'create'} product`);
-      }
-
-      // Refresh products list
-      const productsResponse = await fetch(`${API_BASE_URL}api/products/`, {
-        headers: {
-          'Authorization': `Bearer ${authTokens?.access}`,
+        // Handle images
+        if (images.length > 0) {
+            images.forEach((image, index) => {
+                formData.append(`images[${index}][image]`, image);
+            });
         }
-      });
-      
-      const productsData = await productsResponse.json();
-      
-      if (productsData.status === 'success' && productsData.products) {
-        setProducts(productsData.products);
-      }
 
-      // Reset form on success
-      resetForm();
-      setShowModal(false);
-      
-      toast.success(`Product ${isEditMode ? 'updated' : 'created'} successfully!`);
-      
+        // Handle image URLs
+        const filteredUrls = imageUrls.filter(url => url.trim() !== '');
+        if (filteredUrls.length > 0) {
+            filteredUrls.forEach((url, index) => {
+                formData.append(`images[${index}][image_url]`, url.trim());
+            });
+        }
+
+        let url = `${API_BASE_URL}api/admin/products/`;
+        let method = 'POST';
+
+        if (isEditMode && editProductId) {
+            url = `${API_BASE_URL}api/admin/products/${editProductId}/`;
+            method = 'PUT';
+        }
+
+        console.log('Submitting form data:', {
+            url,
+            method,
+            title,
+            price,
+            categoryId,
+            description,
+            selectedSizes,
+            imageCount: images.length,
+            imageUrlCount: filteredUrls.length
+        });
+
+        const response = await fetch(url, {
+            method,
+            headers: {
+                'Authorization': `Bearer ${authTokens?.access}`,
+            },
+            body: formData,
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            console.error('API Error Response:', data);
+            throw new Error(data.message || data.error || `Failed to ${isEditMode ? 'update' : 'create'} product`);
+        }
+
+        console.log('API Success Response:', data);
+
+        // Refresh products list
+        const productsResponse = await fetch(`${API_BASE_URL}api/products/`, {
+            headers: {
+                'Authorization': `Bearer ${authTokens?.access}`,
+            }
+        });
+        
+        const productsData = await productsResponse.json();
+        
+        if (productsData.status === 'success' && productsData.products) {
+            setProducts(productsData.products);
+        } else {
+            console.error('Failed to refresh products list:', productsData);
+        }
+
+        // Reset form on success
+        resetForm();
+        setShowModal(false);
+        
+        toast.success(`Product ${isEditMode ? 'updated' : 'created'} successfully!`);
+        
     } catch (error) {
-      console.error(`Error ${isEditMode ? 'updating' : 'creating'} product:`, error);
-      setError(`Failed to ${isEditMode ? 'update' : 'create'} product. Please try again.`);
+        console.error(`Error ${isEditMode ? 'updating' : 'creating'} product:`, error);
+        setError(error instanceof Error ? error.message : 'An unexpected error occurred');
+        toast.error(`Failed to ${isEditMode ? 'update' : 'create'} product. Please try again.`);
     } finally {
-      setFormLoading(false);
+        setFormLoading(false);
     }
-  };
+};
 
   // Add a specific handler for description changes
   const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {

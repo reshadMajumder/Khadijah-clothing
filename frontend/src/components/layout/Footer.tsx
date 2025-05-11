@@ -123,8 +123,8 @@ const Footer: React.FC = () => {
                       className="text-gray-300 hover:text-orange-500 transition-colors text-sm"
                     >
                       {category.name}
-                    </Link>
-                  </li>
+                </Link>
+              </li>
                 ))
               )}
             </ul>
@@ -144,19 +144,19 @@ const Footer: React.FC = () => {
                 <PhoneCall className="h-5 w-5 text-orange-500 mr-2" />
                 <a href="tel:+880298837165" className="text-gray-300 hover:text-orange-500 transition-colors text-sm">
                   +880298837165
-                </a>
+                  </a>
               </li>
               <li className="flex items-center">
                 <PhoneCall className="h-5 w-5 text-orange-500 mr-2" />
                 <a href="tel:+880298837166" className="text-gray-300 hover:text-orange-500 transition-colors text-sm">
-                  +880298837166
-                </a>
+                +880298837166
+                  </a>
               </li>
               <li className="flex items-center">
                 <PhoneCall className="h-5 w-5 text-orange-500 mr-2" />
                 <a href="tel:+880198643225" className="text-gray-300 hover:text-orange-500 transition-colors text-sm">
-                  +880198643225
-                </a>
+                +880198643225                  
+                  </a>
               </li>
               <li className="flex items-center">
                 <Mail className="h-5 w-5 text-orange-500 mr-2" />

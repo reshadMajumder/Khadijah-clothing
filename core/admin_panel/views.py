@@ -298,8 +298,29 @@ class ProductListCreate(APIView):
 class ProductDetailView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]
+    
     def invalidate_product_cache(self):
+        # Clear the main product list cache
         cache.delete('product_list')
+        
+        # Clear category-specific product lists
+        categories = Category.objects.all()
+        for category in categories:
+            cache.delete(f'product_list_category_{category.id}')
+            
+        # Clear individual product caches
+        products = Product.objects.all()
+        for product in products:
+            cache.delete(f'product_detail_{product.id}')
+            
+        # Clear any other product-related caches
+        # Note: We can't use delete_pattern with LocMemCache
+        # Instead, we'll clear specific known cache keys
+        cache.delete('products')
+        cache.delete('all_products')
+        cache.delete('featured_products')
+        cache.delete('latest_products')
+        cache.delete('category_products')
 
     def get_object(self, pk):
         try:
@@ -319,47 +340,52 @@ class ProductDetailView(APIView):
         if not product:
             return Response({'error': 'Product not found'}, status=404)
 
-        # Update basic fields only if provided
-        if 'title' in request.data:
-            product.title = request.data['title']
-        if 'description' in request.data:
-            product.description = request.data['description']
-        if 'price' in request.data:
-            product.price = request.data['price']
-        if 'category' in request.data:
-            product.category_id = request.data['category']
-        product.save()
-        self.invalidate_product_cache()
-        # Update sizes only if provided
-        if 'size' in request.data:
-            size_ids = request.data.getlist('size')
-            product.size.set(size_ids)
-        self.invalidate_product_cache()
+        try:
+            # Update basic fields only if provided
+            if 'title' in request.data:
+                product.title = request.data['title']
+            if 'description' in request.data:
+                product.description = request.data['description']
+            if 'price' in request.data:
+                product.price = request.data['price']
+            if 'category' in request.data:
+                product.category_id = request.data['category']
+            product.save()
 
-        # Handle new images only if provided
-        i = 0
-        while True:
-            image_file = request.FILES.get(f'images[{i}][image]')
-            image_url = request.data.get(f'images[{i}][image_url]')
-            if not image_file and not image_url:
-                break  # exit loop when no more image data
-            img = ProductImage.objects.create(
-                image=image_file if image_file else None,
-                image_url=image_url if image_url else None
-            )
-            product.images.add(img)
-            i += 1
-        self.invalidate_product_cache()
+            # Update sizes only if provided
+            if 'size' in request.data:
+                size_ids = request.data.getlist('size')
+                product.size.set(size_ids)
 
-        serializer = ProductDetailSerializer(product)
+            # Handle new images only if provided
+            i = 0
+            while True:
+                image_file = request.FILES.get(f'images[{i}][image]')
+                image_url = request.data.get(f'images[{i}][image_url]')
+                if not image_file and not image_url:
+                    break  # exit loop when no more image data
+                img = ProductImage.objects.create(
+                    image=image_file if image_file else None,
+                    image_url=image_url if image_url else None
+                )
+                product.images.add(img)
+                i += 1
 
-        return Response(serializer.data, status=200)
+            # Invalidate cache after all updates are complete
+            self.invalidate_product_cache()
+
+            serializer = ProductDetailSerializer(product)
+            return Response(serializer.data, status=200)
+            
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
         product = self.get_object(pk)
         if not product:
             return Response({'error': 'Product not found'}, status=404)
         product.delete()
+        self.invalidate_product_cache()  # Invalidate cache after deletion
         return Response({'detail': 'Product deleted'}, status=204)
 
 class ContactUsView(APIView):
