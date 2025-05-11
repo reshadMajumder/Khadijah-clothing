@@ -212,9 +212,9 @@ const ContactPage: React.FC = () => {
                     <div className="ml-4">
                       <h3 className="text-lg font-medium text-white">Address</h3>
                       <p className="text-gray-300 mt-1">
-                        123 Fashion Street<br />
-                        Gulshan, Dhaka<br />
-                        Bangladesh
+                        Sadiq Tower (2nd Floor of the Lift)<br />
+                        Nayasarak Road<br />
+                        Sylhet 3100, Bangladesh
                       </p>
                     </div>
                   </div>
@@ -226,13 +226,18 @@ const ContactPage: React.FC = () => {
                     <div className="ml-4">
                       <h3 className="text-lg font-medium text-white">Phone</h3>
                       <p className="text-gray-300 mt-1">
-                        <a href="tel:+8801700000000" className="hover:text-orange-400 transition-colors">
-                          +880 170 000 0000
+                        <a href="tel:+880298837165" className="hover:text-orange-400 transition-colors">
+                          +880 298 837 165
                         </a>
                       </p>
                       <p className="text-gray-300">
-                        <a href="tel:+8801900000000" className="hover:text-orange-400 transition-colors">
-                          +880 190 000 0000
+                        <a href="tel:+880298837166" className="hover:text-orange-400 transition-colors">
+                          +880 298 837 166
+                        </a>
+                      </p>
+                      <p className="text-gray-300">
+                        <a href="tel:+880198643225" className="hover:text-orange-400 transition-colors">
+                          +880 198 643 225
                         </a>
                       </p>
                     </div>
@@ -245,13 +250,8 @@ const ContactPage: React.FC = () => {
                     <div className="ml-4">
                       <h3 className="text-lg font-medium text-white">Email</h3>
                       <p className="text-gray-300 mt-1">
-                        <a href="mailto:info@khadijah.com" className="hover:text-orange-400 transition-colors">
-                          info@khadijah.com
-                        </a>
-                      </p>
-                      <p className="text-gray-300">
-                        <a href="mailto:support@khadijah.com" className="hover:text-orange-400 transition-colors">
-                          support@khadijah.com
+                        <a href="mailto:admin@khadijahclothing.com" className="hover:text-orange-400 transition-colors">
+                          admin@khadijahclothing.com
                         </a>
                       </p>
                     </div>
@@ -285,7 +285,7 @@ const ContactPage: React.FC = () => {
           <div className="bg-teal-900 rounded-lg overflow-hidden">
             <div className="p-4">
               <iframe 
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14602.686905114865!2d90.41279672957168!3d23.794994895001747!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755c7a0f96fcc59%3A0x92464e024612cf3a!2sGulshan%2C%20Dhaka%2C%20Bangladesh!5e0!3m2!1sen!2sbd!4v1622299950957!5m2!1sen!2sbd" 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3618.7023!2d91.8667!3d24.8976!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3751ab3b4220c2bd%3A0x1a3c3b1c3b1c3b1c!2sSadiq%20Tower%2C%20Nayasarak%20Road%2C%20Sylhet%203100%2C%20Bangladesh!5e0!3m2!1sen!2sbd!4v1622299950957!5m2!1sen!2sbd" 
                 className="w-full h-[400px] border-0"
                 title="Khadijah Store Location"
                 allowFullScreen
