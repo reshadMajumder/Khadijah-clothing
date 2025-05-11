@@ -388,6 +388,7 @@ class ProductDetailView(APIView):
         self.invalidate_product_cache()  # Invalidate cache after deletion
         return Response({'detail': 'Product deleted'}, status=204)
 
+
 class ContactUsView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     def get(self, request):
