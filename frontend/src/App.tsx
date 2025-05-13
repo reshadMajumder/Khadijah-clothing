@@ -16,9 +16,13 @@ import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import ReviewsPage from './pages/ReviewsPage';
 import TermsPage from './pages/TermsPage';
+import BrandPage from './pages/BrandPage';
 import AdminLoginPage from './pages/admin/AdminLoginPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import NotFoundPage from './pages/NotFoundPage';
+
+// Auth components
+import ProtectedRoute from './components/auth/ProtectedRoute';
 
 // Context Providers
 import { CartProvider } from './context/CartContext';
@@ -42,8 +46,16 @@ function App() {
                   <Route path="/contact" element={<ContactPage />} />
                   <Route path="/reviews" element={<ReviewsPage />} />
                   <Route path="/terms" element={<TermsPage />} />
+                  <Route path="/brand" element={<BrandPage />} />
                   <Route path="/admin/login" element={<AdminLoginPage />} />
-                  <Route path="/admin/*" element={<AdminDashboard />} />
+                  <Route 
+                    path="/admin/*" 
+                    element={
+                      <ProtectedRoute>
+                        <AdminDashboard />
+                      </ProtectedRoute>
+                    } 
+                  />
                   <Route path="*" element={<NotFoundPage />} />
                 </Routes>
               </main>

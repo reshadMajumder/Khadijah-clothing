@@ -1,13 +1,28 @@
 from django.db import models
 from uuid import uuid4
+from django.core.exceptions import ValidationError
 # Create your models here.
 class ProductImage(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False, unique=True)
-    image = models.ImageField(upload_to='product_images/',null=True, blank=True)
+    image = models.ImageField(upload_to='product_images/', null=True, blank=True)
     image_url = models.URLField(max_length=200, null=True, blank=True)
 
+    def clean(self):
+        if not self.image and not self.image_url:
+            raise ValidationError('Either image or image_url must be provided')
+        if self.image and self.image_url:
+            raise ValidationError('Cannot have both image and image_url')
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        return str(self.image.name) if self.image else 'No Image'
+        if self.image:
+            return str(self.image.name)
+        elif self.image_url:
+            return f"URL: {self.image_url}"
+        return 'No Image'
 
 
 class Size(models.Model):

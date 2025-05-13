@@ -9,6 +9,7 @@ import OrdersPage from './OrdersPage';
 import ReviewsPage from './ReviewsPage';
 import StaffPage from './StaffPage';
 import ManageProducts from './ManageProducts';
+import EditProduct from './EditProduct';
 import AdminNotFound from './AdminNotFound';
 import Messages from './Messages';
 import ManageCategories from './ManageCategories';
@@ -175,6 +176,7 @@ const AdminDashboard: React.FC = () => {
               <Route path="/" element={<OrdersPage />} />
               <Route path="/orders" element={<OrdersPage />} />
               <Route path="/products" element={<ManageProducts />} />
+              <Route path="/products/:id/edit" element={<EditProduct />} />
               <Route path="/reviews" element={<ReviewsPage />} />
               <Route path="/staff" element={<StaffPage />} />
               <Route path="*" element={<AdminNotFound />} />

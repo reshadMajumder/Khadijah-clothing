@@ -357,19 +357,64 @@ class ProductDetailView(APIView):
                 size_ids = request.data.getlist('size')
                 product.size.set(size_ids)
 
-            # Handle new images only if provided
+            # Handle images
+            # First, get all existing image IDs that should be kept
+            existing_image_ids = set()
+            
+            # Keep track of which images we're updating
+            is_updating_images = False
+            
+            # Process image URLs
+            i = 0
+            while True:
+                image_url = request.data.get(f'images[{i}][image_url]')
+                if not image_url:
+                    break
+                    
+                is_updating_images = True
+                # Check if this URL already exists in the product's images
+                existing_image = product.images.filter(image_url=image_url).first()
+                if existing_image:
+                    existing_image_ids.add(existing_image.id)
+                else:
+                    try:
+                        # Create new image entry for new URL
+                        img = ProductImage.objects.create(
+                            image_url=image_url
+                        )
+                        product.images.add(img)
+                        existing_image_ids.add(img.id)
+                    except ValidationError as e:
+                        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+                i += 1
+
+            # Process new image files
             i = 0
             while True:
                 image_file = request.FILES.get(f'images[{i}][image]')
-                image_url = request.data.get(f'images[{i}][image_url]')
-                if not image_file and not image_url:
-                    break  # exit loop when no more image data
-                img = ProductImage.objects.create(
-                    image=image_file if image_file else None,
-                    image_url=image_url if image_url else None
-                )
-                product.images.add(img)
+                if not image_file:
+                    break
+                    
+                is_updating_images = True
+                try:
+                    # Create new image entry for new file
+                    img = ProductImage.objects.create(
+                        image=image_file
+                    )
+                    product.images.add(img)
+                    existing_image_ids.add(img.id)
+                except ValidationError as e:
+                    return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
                 i += 1
+
+            # Only delete images if we're explicitly updating images
+            if is_updating_images:
+                # Keep all existing images that weren't part of this update
+                existing_images = product.images.all()
+                for img in existing_images:
+                    if img.id not in existing_image_ids:
+                        # Only delete if this image wasn't part of the update
+                        img.delete()
 
             # Invalidate cache after all updates are complete
             self.invalidate_product_cache()

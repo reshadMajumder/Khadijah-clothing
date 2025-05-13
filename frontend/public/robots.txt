@@ -1,9 +1,17 @@
 # Allow all web crawlers
 User-agent: *
 Allow: /
+Allow: /brand
+Allow: /products
+Allow: /about
+Allow: /contact
+Allow: /reviews
+Allow: /terms
 
 # Disallow admin area
 Disallow: /admin/
+Disallow: /admin/login
+Disallow: /cart
 
 # Sitemap location
 Sitemap: https://khadijahclothing.com/sitemap.xml 

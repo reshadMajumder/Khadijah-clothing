@@ -50,6 +50,8 @@ const ManageProducts: React.FC = () => {
   const [images, setImages] = useState<File[]>([]);
   const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
   const [imageUrls, setImageUrls] = useState<string[]>(['']);
+  // Add state to track original image URLs
+  const [originalImageUrls, setOriginalImageUrls] = useState<string[]>([]);
   
   // Edit mode
   const [isEditMode, setIsEditMode] = useState(false);
@@ -65,6 +67,9 @@ const ManageProducts: React.FC = () => {
 
   // Add this state near the top of your component after other state declarations
   const [directDescription, setDirectDescription] = useState<string>('');
+
+  // Add state to track the original product for edit
+  const [originalProduct, setOriginalProduct] = useState<Product | null>(null);
 
   // Debug console logging for API responses
   useEffect(() => {
@@ -268,6 +273,7 @@ const ManageProducts: React.FC = () => {
     setIsEditMode(false);
     setEditProductId(null);
     setError('');
+    setOriginalProduct(null);
   };
 
   // Get description directly from API
@@ -309,6 +315,7 @@ const ManageProducts: React.FC = () => {
 
   // Load product data for editing
   const loadProductForEdit = (product: Product) => {
+    setOriginalProduct(product); // Store the original for comparison
     console.log("Loading product for edit (full object):", product);
     
     // Set all form fields from product data
@@ -348,15 +355,18 @@ const ManageProducts: React.FC = () => {
       // Set image URLs
       if (urlImages.length > 0) {
         setImageUrls(urlImages);
+        setOriginalImageUrls([...urlImages]); // Store original URLs
       } else {
         setImageUrls(['']);
+        setOriginalImageUrls([]);
       }
     } else {
       setImageUrls(['']);
+      setOriginalImageUrls([]);
     }
     
     // Show modal after setting all data
-      setShowModal(true);
+    setShowModal(true);
   };
 
   // Close modal and reset form
@@ -412,91 +422,81 @@ const ManageProducts: React.FC = () => {
 
     try {
         const formData = new FormData();
-        
-        // Always append these fields for updates
-        formData.append('title', title);
-        formData.append('price', price.toString());
-        formData.append('category', categoryId);
-        formData.append('description', description);
-
-        // Append sizes
-        selectedSizes.forEach(sizeId => {
-            formData.append('size', sizeId);
-        });
-
-        // Handle images
+        let hasChanges = false;
+        // Only send changed fields
+        if (!originalProduct || title !== originalProduct.title) {
+          formData.append('title', title);
+          hasChanges = true;
+        }
+        if (!originalProduct || description !== originalProduct.description) {
+          formData.append('description', description);
+          hasChanges = true;
+        }
+        if (!originalProduct || price !== originalProduct.price.toString()) {
+          formData.append('price', price);
+          hasChanges = true;
+        }
+        if (!originalProduct || categoryId !== originalProduct.category.id) {
+          formData.append('category', categoryId);
+          hasChanges = true;
+        }
+        // Sizes (compare arrays)
+        const origSizes = originalProduct ? originalProduct.size.map(s => s.id).sort() : [];
+        const newSizes = selectedSizes.slice().sort();
+        if (!originalProduct || JSON.stringify(origSizes) !== JSON.stringify(newSizes)) {
+          selectedSizes.forEach(sizeId => formData.append('size', sizeId));
+          hasChanges = true;
+        }
+        // Image URLs (compare arrays)
+        const origUrls = originalProduct ? (originalProduct.images || []).filter(img => img.image_url).map(img => img.image_url).sort() : [];
+        const newUrls = imageUrls.filter(url => url.trim() !== '').sort();
+        if (!originalProduct || JSON.stringify(origUrls) !== JSON.stringify(newUrls)) {
+          // Only send the new URLs, not the old ones
+          newUrls.forEach((url, idx) => {
+            formData.append(`images[${idx}][image_url]`, url);
+          });
+          hasChanges = true;
+        }
+        // New image files
         if (images.length > 0) {
-            images.forEach((image, index) => {
-                formData.append(`images[${index}][image]`, image);
-            });
+          images.forEach((file, idx) => {
+            formData.append(`images[${idx}][image]`, file);
+          });
+          hasChanges = true;
         }
-
-        // Handle image URLs
-        const filteredUrls = imageUrls.filter(url => url.trim() !== '');
-        if (filteredUrls.length > 0) {
-            filteredUrls.forEach((url, index) => {
-                formData.append(`images[${index}][image_url]`, url.trim());
-            });
+        if (!hasChanges) {
+          toast('No changes detected.');
+          setFormLoading(false);
+          return;
         }
-
         let url = `${API_BASE_URL}api/admin/products/`;
         let method = 'POST';
-
         if (isEditMode && editProductId) {
-            url = `${API_BASE_URL}api/admin/products/${editProductId}/`;
-            method = 'PUT';
+          url = `${API_BASE_URL}api/admin/products/${editProductId}/`;
+          method = 'PUT';
         }
-
-        console.log('Submitting form data:', {
-            url,
-            method,
-            title,
-            price,
-            categoryId,
-            description,
-            selectedSizes,
-            imageCount: images.length,
-            imageUrlCount: filteredUrls.length
-        });
-
         const response = await fetch(url, {
-            method,
-            headers: {
-                'Authorization': `Bearer ${authTokens?.access}`,
-            },
-            body: formData,
+          method,
+          headers: { 'Authorization': `Bearer ${authTokens?.access}` },
+          body: formData,
         });
-
         const data = await response.json();
-
         if (!response.ok) {
-            console.error('API Error Response:', data);
-            throw new Error(data.message || data.error || `Failed to ${isEditMode ? 'update' : 'create'} product`);
-        }
-
-        console.log('API Success Response:', data);
-
-        // Refresh products list
-        const productsResponse = await fetch(`${API_BASE_URL}api/products/`, {
-            headers: {
-                'Authorization': `Bearer ${authTokens?.access}`,
-            }
-        });
-        
-        const productsData = await productsResponse.json();
-        
-        if (productsData.status === 'success' && productsData.products) {
-            setProducts(productsData.products);
+          setError(data.message || data.error || `Failed to ${isEditMode ? 'update' : 'create'} product`);
+          toast.error(`Failed to ${isEditMode ? 'update' : 'create'} product. Please try again.`);
         } else {
-            console.error('Failed to refresh products list:', productsData);
+          // Refresh products list
+          const productsResponse = await fetch(`${API_BASE_URL}api/products/`, {
+            headers: { 'Authorization': `Bearer ${authTokens?.access}` },
+          });
+          const productsData = await productsResponse.json();
+          if (productsData.status === 'success' && productsData.products) {
+            setProducts(productsData.products);
+          }
+          resetForm();
+          setShowModal(false);
+          toast.success(`Product ${isEditMode ? 'updated' : 'created'} successfully!`);
         }
-
-        // Reset form on success
-        resetForm();
-        setShowModal(false);
-        
-        toast.success(`Product ${isEditMode ? 'updated' : 'created'} successfully!`);
-        
     } catch (error) {
         console.error(`Error ${isEditMode ? 'updating' : 'creating'} product:`, error);
         setError(error instanceof Error ? error.message : 'An unexpected error occurred');
@@ -1255,7 +1255,7 @@ const ManageProducts: React.FC = () => {
                     {/* Actions */}
                     <div className="border-t border-teal-700/50 p-3 flex justify-between">
                       <button
-                        onClick={() => loadProductForEdit(product)}
+                        onClick={() => navigate(`/admin/products/${product.id}/edit`)}
                         className="flex items-center text-teal-300 hover:text-teal-200 transition-colors"
                       >
                         <Edit size={16} className="mr-1" />

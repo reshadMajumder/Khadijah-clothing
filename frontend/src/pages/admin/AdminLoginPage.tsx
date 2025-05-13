@@ -1,16 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { User, Lock, AlertCircle } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { User, Lock, AlertCircle, InfoIcon } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import KhadijahLogo from '../../components/ui/KhadijahLogo';
+
+interface LocationState {
+  message?: string;
+}
 
 const AdminLoginPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [notification, setNotification] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { currentUser, login } = useAuth();
+
+  // Check for expired session message
+  useEffect(() => {
+    const state = location.state as LocationState;
+    if (state?.message) {
+      setNotification(state.message);
+      // Remove the message from history state
+      navigate(location.pathname, { replace: true });
+    }
+  }, [location, navigate]);
 
   // If already logged in, redirect to admin dashboard
   useEffect(() => {
@@ -22,6 +38,7 @@ const AdminLoginPage: React.FC = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setNotification('');
     
     if (!username || !password) {
       setError('Please enter both username and password');
@@ -50,6 +67,13 @@ const AdminLoginPage: React.FC = () => {
             </div>
             
             <h1 className="text-2xl font-bold text-white text-center mb-6">Admin Login</h1>
+            
+            {notification && (
+              <div className="mb-6 p-3 bg-amber-900/30 border border-amber-800 rounded-md flex items-start">
+                <InfoIcon className="h-5 w-5 text-amber-500 mr-2 flex-shrink-0 mt-0.5" />
+                <p className="text-amber-300 text-sm">{notification}</p>
+              </div>
+            )}
             
             {error && (
               <div className="mb-6 p-3 bg-red-900/30 border border-red-800 rounded-md flex items-start">

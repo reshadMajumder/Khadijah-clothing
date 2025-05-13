@@ -1,0 +1,34 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Khadijah Clothing Brand",
+  "url": "https://khadijahclothing.com",
+  "logo": "https://khadijahclothing.com/logo.png",
+  "description": "Khadijah Clothing Brand is a premium women's fashion retailer specializing in elegant clothing like 3pc sets, kurtis, and Pakistani dresses. Our brand represents quality, style, and contemporary design.",
+  "sameAs": [
+    "https://facebook.com/khadijah.clothingbrand",
+    "https://instagram.com/khadijahclothing",
+    "https://twitter.com/khadijahclothing",
+    "https://pinterest.com/khadijahclothing"
+  ],
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "123 Fashion Avenue",
+    "addressLocality": "Dhaka",
+    "addressRegion": "Dhaka Division",
+    "postalCode": "1000",
+    "addressCountry": "Bangladesh"
+  },
+  "contactPoint": [
+    {
+      "@type": "ContactPoint",
+      "telephone": "+880-1234-567890",
+      "contactType": "customer service"
+    }
+  ],
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://khadijahclothing.com/products?search={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+} 

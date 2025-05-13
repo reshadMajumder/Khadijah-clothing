@@ -233,24 +233,26 @@ const ProductPage: React.FC = () => {
                         : 'border-teal-800 hover:border-teal-600'
                     }`}
                   >
-                    <img 
-                      src={image.image || image.image_url || ''} 
-                      alt={`${product.title} thumbnail ${index + 1}`} 
-                      className="h-full w-full object-cover"
-                    />
+                    <div className="aspect-square w-full h-full bg-teal-800 flex items-center justify-center overflow-hidden">
+                      <img 
+                        src={image.image || image.image_url || ''} 
+                        alt={`${product.title} thumbnail ${index + 1}`} 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
                   </div>
                 ))}
               </div>
             )}
 
             {/* Main Image */}
-            <div className="relative flex-1 bg-teal-900/50 rounded-lg overflow-hidden">
+            <div className="relative flex-1 flex items-center justify-center p-0 m-0 bg-transparent overflow-visible">
               <img 
                 src={getProductImage(product, activeImageIndex)} 
                 alt={product.title} 
-                className="w-full h-auto object-cover"
+                className="block"
+                style={{ maxWidth: '100%', maxHeight: '80vh', width: 'auto', height: 'auto', margin: 0, padding: 0, boxShadow: 'none', background: 'none', border: 'none' }}
               />
-              
               {/* Navigation Arrows */}
               {product.images && product.images.length > 1 && (
                 <>
@@ -351,8 +353,6 @@ const ProductPage: React.FC = () => {
             </div>
           </div>
         </div>
-
-
 
         {/* Related Products */}
         {relatedProducts.length > 0 && (

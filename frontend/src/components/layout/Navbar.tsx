@@ -60,6 +60,7 @@ const Navbar: React.FC = () => {
         <nav className="hidden md:flex items-center space-x-6">
           <Link to="/" className="text-white hover:text-amber-300 transition-colors">Home</Link>
           <Link to="/products" className="text-white hover:text-amber-300 transition-colors">Products</Link>
+          <Link to="/brand" className="text-white hover:text-amber-300 transition-colors">Our Brand</Link>
           <Link to="/about" className="text-white hover:text-amber-300 transition-colors">About</Link>
           <Link to="/contact" className="text-white hover:text-amber-300 transition-colors">Contact us</Link>
           <Link to="/reviews" className="text-white hover:text-amber-300 transition-colors">Reviews</Link>
@@ -139,6 +140,8 @@ const Navbar: React.FC = () => {
           
           <nav className="flex flex-col space-y-3">
             <Link to="/" className="text-white hover:text-amber-300 transition-colors py-1">Home</Link>
+            <Link to="/products" className="text-white hover:text-amber-300 transition-colors py-1">Products</Link>
+            <Link to="/brand" className="text-white hover:text-amber-300 transition-colors py-1">Our Brand</Link>
             <Link to="/about" className="text-white hover:text-amber-300 transition-colors py-1">About</Link>
             <Link to="/contact" className="text-white hover:text-amber-300 transition-colors py-1">Contact</Link>
             <Link to="/reviews" className="text-white hover:text-amber-300 transition-colors py-1">Reviews</Link>
