@@ -254,6 +254,16 @@ const ContactPage: React.FC = () => {
                           admin@khadijahclothing.com
                         </a>
                       </p>
+                      <p className="text-gray-300 mt-1">
+                        <a href="mailto:khadijah.clothingbrand@gmail.com" className="hover:text-orange-400 transition-colors">
+                        khadijah.clothingbrand@gmail.com
+                       </a>
+                      </p>
+                      <p className="text-gray-300 mt-1">
+                        <a href="mailto:hello@khadijahclothing.com" className="hover:text-orange-400 transition-colors">
+                          hello@khadijahclothing.com
+                        </a>
+                      </p>
                     </div>
                   </div>
                 </div>

@@ -48,6 +48,7 @@ const ProductPage: React.FC = () => {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedSize, setSelectedSize] = useState<string>('');
+  const [selectedSizeId, setSelectedSizeId] = useState<string>('');
   const [quantity, setQuantity] = useState(1);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -68,6 +69,7 @@ const ProductPage: React.FC = () => {
           // Set default selected size to the first available size
           if (data.product.size && data.product.size.length > 0) {
             setSelectedSize(data.product.size[0].size);
+            setSelectedSizeId(data.product.size[0].id);
           }
           
           // Fetch related products from the same category
@@ -106,7 +108,7 @@ const ProductPage: React.FC = () => {
   }, [id]);
 
   const handleAddToCart = () => {
-    if (!product || !selectedSize) return;
+    if (!product || !selectedSize || !selectedSizeId) return;
 
     const cartProduct: CartProduct = {
       id: product.id,
@@ -114,6 +116,7 @@ const ProductPage: React.FC = () => {
       image: getProductImage(product, 0),
       price: product.price,
       size: selectedSize,
+      sizeId: selectedSizeId,
       quantity
     };
 
@@ -293,7 +296,10 @@ const ProductPage: React.FC = () => {
                 {product.size.map(size => (
                   <button
                     key={size.id}
-                    onClick={() => setSelectedSize(size.size)}
+                    onClick={() => {
+                      setSelectedSize(size.size);
+                      setSelectedSizeId(size.id);
+                    }}
                     className={`h-10 min-w-[40px] px-3 rounded-md flex items-center justify-center transition-all ${
                       selectedSize === size.size
                         ? 'bg-gradient-to-r from-orange-500 to-amber-400 text-white font-medium'

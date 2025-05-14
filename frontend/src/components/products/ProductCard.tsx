@@ -11,6 +11,7 @@ interface ProductCardProps {
     image: string;
     price: number;
     sizes: string[];
+    sizeIds?: string[];
     category: string;
   };
 }
@@ -22,6 +23,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     e.preventDefault();
     e.stopPropagation();
 
+    // Default sizeId if not provided
+    const defaultSizeId = product.sizeIds && product.sizeIds.length > 0 
+      ? product.sizeIds[0] 
+      : "default-size-id";
+
     // Quick add always uses the first size and quantity 1
     const cartProduct: CartProduct = {
       id: product.id,
@@ -29,6 +35,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       image: product.image,
       price: product.price,
       size: product.sizes[0],
+      sizeId: defaultSizeId,
       quantity: 1
     };
 
@@ -60,13 +67,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             </Link> */}
             
             {/* Quick Add Button */}
-            <button
+            {/* <button
               onClick={handleQuickAdd}
               className="bg-white text-teal-900 p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-orange-500 hover:text-white"
               aria-label="Quick add to cart"
             >
               <ShoppingBag size={20} />
-            </button>
+            </button> */}
           </div>
         </div>
         

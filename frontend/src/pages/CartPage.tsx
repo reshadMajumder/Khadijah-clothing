@@ -72,7 +72,8 @@ const CartPage: React.FC = () => {
         customer_address: formData.address,
         items_data: cartItems.map(item => ({
           product_id: item.id,
-          quantity: item.quantity
+          quantity: item.quantity,
+          size_id: item.sizeId
         }))
       };
       

@@ -93,15 +93,23 @@ class ContactUsSerializer(serializers.ModelSerializer):
 class OrderItemSerializer(serializers.ModelSerializer):
     product = ProductSerializer(read_only=True)
     product_id = serializers.UUIDField(write_only=True)
+    size = SizeSerializer(read_only=True)
+    size_id = serializers.UUIDField(write_only=True, required=False, allow_null=True)
     
     class Meta:
         model = OrderItem
-        fields = ['id', 'product', 'product_id', 'quantity']
+        fields = ['id', 'product', 'product_id', 'quantity', 'size', 'size_id']
     
     def create(self, validated_data):
         product_id = validated_data.pop('product_id')
         product = get_object_or_404(Product, id=product_id)
-        return OrderItem.objects.create(product=product, **validated_data)
+        
+        size = None
+        size_id = validated_data.pop('size_id', None)
+        if size_id:
+            size = get_object_or_404(Size, id=size_id)
+            
+        return OrderItem.objects.create(product=product, size=size, **validated_data)
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -128,9 +136,16 @@ class OrderSerializer(serializers.ModelSerializer):
         for item_data in items_data:
             product = get_object_or_404(Product, id=item_data['product_id'])
             quantity = item_data.get('quantity', 1)
+            
+            # Get the size if provided
+            size = None
+            if 'size_id' in item_data and item_data['size_id']:
+                size = get_object_or_404(Size, id=item_data['size_id'])
+            
             order_item = OrderItem.objects.create(
                 product=product,
-                quantity=quantity
+                quantity=quantity,
+                size=size
             )
             order.items.add(order_item)
             total_price += product.price * quantity if product.price else 0

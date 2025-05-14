@@ -41,6 +41,7 @@ interface ProductCardProps {
   image: string;
   price: number;
   sizes: string[];
+  sizeIds: string[];
   category: string;
   short_description?: string;
 }
@@ -151,14 +152,16 @@ const HomePage: React.FC = () => {
       {/* Hero Banner */}
       <div className="relative h-[60vh] overflow-hidden">
         <div 
-          className="absolute inset-0 bg-gradient-to-r from-teal-950/80 to-teal-900/40"
+          className="absolute inset-0 bg-gradient-to-r from-teal-950/90 to-teal-900/60"
           style={{
-            backgroundImage: "url('https://images.pexels.com/photos/1078958/pexels-photo-1078958.jpeg?auto=compress&cs=tinysrgb&w=1600')",
+            backgroundImage: "url('https://images.pexels.com/photos/27603274/pexels-photo-27603274/free-photo-of-fashion-eastern-dresses-by-dhanno.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2')",
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            backgroundBlendMode: 'overlay'
+            backgroundBlendMode: 'multiply'
           }}
-        ></div>
+        >
+          <div className="absolute inset-0 bg-black/40"></div>
+        </div>
         <div className="container-custom relative h-full flex flex-col justify-center">
           <div className="max-w-xl">
             <p className="text-orange-400 font-medium mb-2 tracking-wider slide-up">NEW COLLECTION</p>
@@ -168,10 +171,12 @@ const HomePage: React.FC = () => {
             <p className="text-gray-200 mb-6 slide-up" style={{animationDelay: '0.2s'}}>
               Discover our new collection of traditional and contemporary women's fashion. Elevate your style with Khadijah.
             </p>
-            <Link to="/products" className="btn btn-primary flex items-center slide-up" style={{animationDelay: '0.3s'}}>
-              <ShoppingBag className="mr-2" size={18} />
-              Shop Now
-            </Link>
+            <div className="flex justify-center">
+              <Link to="/products" className="btn btn-primary flex items-center slide-up px-4 py-2 text-sm bg-white/10 backdrop-blur-md border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300 w-fit" style={{animationDelay: '0.3s'}}>
+                <ShoppingBag className="mr-2" size={16} />
+                Shop Now
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -227,6 +232,7 @@ const HomePage: React.FC = () => {
                   : '',
                 price: product.price,
                 sizes: product.size.map(s => s.size),
+                sizeIds: product.size.map(s => s.id),
                 category: product.category.name,
                 short_description: product.description
               } as ProductCardProps} />

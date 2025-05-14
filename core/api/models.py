@@ -111,6 +111,7 @@ class OrderItem(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False, unique=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='order_items')
     quantity = models.IntegerField(default=1)
+    size = models.ForeignKey(Size, on_delete=models.CASCADE, related_name='order_items', null=True, blank=True)
     def __str__(self):
         return f"{self.product.title}"
 

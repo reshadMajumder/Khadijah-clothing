@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Check, Trash2, CalendarClock, ShoppingBag, Edit, X, Save } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { API_BASE_URL } from '../../data/ApiUrl';
@@ -33,6 +33,7 @@ interface OrderItem {
   id: string;
   product: Product;
   quantity: number;
+  size?: Size;
 }
 
 interface Order {
@@ -61,6 +62,7 @@ const OrdersPage: React.FC = () => {
     customer_address: '',
     is_confirmed: false
   });
+  const printRef = useRef<HTMLDivElement>(null);
 
   // Fetch orders
   useEffect(() => {
@@ -237,6 +239,161 @@ const OrdersPage: React.FC = () => {
     }).format(date);
   };
 
+  const printOrder = (order: Order) => {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+
+    const printContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Order #${order.id.slice(0, 8)} - Khadijah</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              line-height: 1.6;
+              color: #333;
+              max-width: 800px;
+              margin: 0 auto;
+              padding: 20px;
+            }
+            .header {
+              text-align: center;
+              margin-bottom: 30px;
+              border-bottom: 2px solid #333;
+              padding-bottom: 20px;
+            }
+            .header h1 {
+              margin: 0;
+              color: #333;
+              font-size: 24px;
+            }
+            .header p {
+              margin: 5px 0;
+              color: #666;
+            }
+            .section {
+              margin-bottom: 20px;
+            }
+            .section-title {
+              font-weight: bold;
+              margin-bottom: 10px;
+              color: #333;
+              border-bottom: 1px solid #ddd;
+              padding-bottom: 5px;
+            }
+            .customer-info {
+              display: grid;
+              grid-template-columns: repeat(2, 1fr);
+              gap: 20px;
+              margin-bottom: 20px;
+            }
+            .product-list {
+              width: 100%;
+              border-collapse: collapse;
+              margin-bottom: 20px;
+            }
+            .product-list th {
+              background-color: #f5f5f5;
+              text-align: left;
+              padding: 10px;
+              border-bottom: 2px solid #ddd;
+            }
+            .product-list td {
+              padding: 10px;
+              border-bottom: 1px solid #ddd;
+            }
+            .total {
+              text-align: right;
+              font-size: 18px;
+              font-weight: bold;
+              margin-top: 20px;
+            }
+            .footer {
+              margin-top: 40px;
+              text-align: center;
+              font-size: 12px;
+              color: #666;
+              border-top: 1px solid #ddd;
+              padding-top: 20px;
+            }
+            @media print {
+              body {
+                padding: 0;
+              }
+              .no-print {
+                display: none;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>Khadijah</h1>
+            <p>Order Invoice</p>
+          </div>
+
+          <div class="section">
+            <div class="section-title">Order Information</div>
+            <div class="customer-info">
+              <div>
+                <p><strong>Order ID:</strong> ${order.id}</p>
+                <p><strong>Date:</strong> ${formatDate(order.created_at)}</p>
+                <p><strong>Status:</strong> ${order.is_confirmed ? 'Confirmed' : 'Pending'}</p>
+              </div>
+              <div>
+                <p><strong>Customer:</strong> ${order.customer_name}</p>
+                <p><strong>Phone:</strong> ${order.customer_phone}</p>
+                <p><strong>Address:</strong> ${order.customer_address}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-title">Order Items</div>
+            <table class="product-list">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Size</th>
+                  <th>Quantity</th>
+                  <th>Price</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${order.items.map(item => `
+                  <tr>
+                    <td>${item.product.title}</td>
+                    <td>${item.size ? item.size.size : 'N/A'}</td>
+                    <td>${item.quantity}</td>
+                    <td>৳ ${item.product.price.toLocaleString()}</td>
+                    <td>৳ ${(item.product.price * item.quantity).toLocaleString()}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="total">
+            Total Amount: ৳ ${order.total_price.toLocaleString()}
+          </div>
+
+          <div class="footer">
+            <p>Thank you for shopping with Khadijah!</p>
+            <p>This is a computer-generated invoice, no signature required.</p>
+          </div>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
+  };
+
   return (
     <div className="pb-12 bg-teal-950 min-h-screen">
       <div className="container-custom max-w-6xl">
@@ -380,6 +537,8 @@ const OrdersPage: React.FC = () => {
                                         <span>Qty: {item.quantity}</span>
                                         <span className="mx-2">•</span>
                                         <span>Price: ৳ {item.product.price.toLocaleString()}</span>
+                                        <span className="mx-2">•</span>
+                                        <span>Size: {item.size ? item.size.size : 'N/A'}</span>
                                       </div>
                                     </div>
                                     <div className="text-right flex-shrink-0">
@@ -391,7 +550,17 @@ const OrdersPage: React.FC = () => {
                                 ))}
                               </div>
                               
-                              <div className="flex justify-end mt-4">
+                              <div className="flex justify-between items-center mt-4">
+                                <button
+                                  onClick={() => printOrder(order)}
+                                  className="flex items-center px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-300 text-sm text-white"
+                                  title="Print Order Invoice"
+                                >
+                                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                                  </svg>
+                                  Print Invoice
+                                </button>
                                 <div className="text-right">
                                   <p className="text-gray-300">Order Total</p>
                                   <p className="text-xl font-bold text-white">

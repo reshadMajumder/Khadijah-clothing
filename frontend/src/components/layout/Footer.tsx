@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { PhoneCall, Mail, MapPin, Facebook, Instagram, Twitter } from 'lucide-react';
+import { PhoneCall, Mail, MapPin, Facebook, Instagram } from 'lucide-react';
 import KhadijahLogo from '../ui/KhadijahLogo';
 import { API_BASE_URL } from '../../data/ApiUrl';
 
@@ -49,26 +49,20 @@ const Footer: React.FC = () => {
             </p>
             <div className="flex space-x-4">
               <a
-                href="#"
+                href="https://www.facebook.com/khadijah.clothingbrand"
                 className="text-gray-400 hover:text-orange-500 transition-colors"
                 aria-label="Facebook"
               >
                 <Facebook size={18} />
               </a>
               <a
-                href="#"
+                href="https://www.facebook.com/khadijah.clothingbrand"
                 className="text-gray-400 hover:text-orange-500 transition-colors"
                 aria-label="Instagram"
               >
                 <Instagram size={18} />
               </a>
-              <a
-                href="#"
-                className="text-gray-400 hover:text-orange-500 transition-colors"
-                aria-label="Twitter"
-              >
-                <Twitter size={18} />
-              </a>
+
             </div>
           </div>
 

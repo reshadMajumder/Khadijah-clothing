@@ -26,7 +26,7 @@ const TermsPage: React.FC = () => {
               </ul>
               <h3 className="text-white font-medium">How to Return:</h3>
               <p>
-                Please contact our customer service team at <a href="mailto:returns@khadijah.com" className="text-orange-400 hover:underline">returns@khadijah.com</a> with your order number and reason for return. Our team will guide you through the return process.
+                Please contact our customer service team at <a href="mailto:admin@khadijahclothing.com" className="text-orange-400 hover:underline">admin@khadijahclothing.com</a> with your order number and reason for return. Our team will guide you through the return process.
               </p>
             </div>
           </div>
@@ -53,7 +53,7 @@ const TermsPage: React.FC = () => {
                 <li>Outside Dhaka: ৳120-150</li>
               </ul>
               <p>
-                You will receive a tracking number once your order is dispatched. For any delivery inquiries, please contact <a href="mailto:delivery@khadijah.com" className="text-orange-400 hover:underline">delivery@khadijah.com</a>.
+                You will receive a tracking number once your order is dispatched. For any delivery inquiries, please contact <a href="mailto:admin@khadijahclothing.com" className="text-orange-400 hover:underline">admin@khadijahclothing.com</a>.
               </p>
             </div>
           </div>
@@ -81,7 +81,7 @@ const TermsPage: React.FC = () => {
                 All online transactions are processed through secure and trusted payment gateways. We do not store credit card details nor have access to your payment information.
               </p>
               <p>
-                For assistance with payments, please contact <a href="mailto:billing@khadijah.com" className="text-orange-400 hover:underline">billing@khadijah.com</a>.
+                For assistance with payments, please contact <a href="mailto:admin@khadijahclothing.com" className="text-orange-400 hover:underline">admin@khadijahclothing.com</a>.
               </p>
             </div>
           </div>
@@ -107,7 +107,7 @@ const TermsPage: React.FC = () => {
                 If you wish to exchange an item for a different size or color, please indicate this in your return request. Exchanges are subject to availability.
               </p>
               <p>
-                For questions about refunds, please contact <a href="mailto:refunds@khadijah.com" className="text-orange-400 hover:underline">refunds@khadijah.com</a>.
+                For questions about refunds, please contact <a href="mailto:admin@khadijahclothing.com" className="text-orange-400 hover:underline">admin@khadijahclothing.com</a>.
               </p>
             </div>
           </div>
