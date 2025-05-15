@@ -202,10 +202,14 @@ class CategoryView(APIView):
         except Category.DoesNotExist:
             return Response({'error': 'Category not found'}, status=status.HTTP_404_NOT_FOUND)
 
+        # Initialize data with name
         data = {
-            'name': request.data.get('name'),
-            'image_file': request.FILES.get('image')
+            'name': request.data.get('name')
         }
+        
+        # Only include image_file if an image is actually provided
+        if request.FILES.get('image'):
+            data['image_file'] = request.FILES.get('image')
 
         serializer = AdminCategorySerializer(category, data=data, partial=True, context={'request': request})
 

@@ -132,8 +132,13 @@ const ManageCategories: React.FC = () => {
     try {
       const formData = new FormData();
       formData.append('name', categoryName);
+      
+      // Only append image if there's a new image selected
       if (categoryImage) {
         formData.append('image', categoryImage);
+      } else if (isEditCategory && categoryImagePreview && !categoryImagePreview.startsWith('blob:')) {
+        // For editing: If there's a preview image from the server but no new image selected,
+        // we don't need to send anything as the backend will keep the existing image
       }
 
       const url = isEditCategory && editCategoryId
@@ -229,6 +234,7 @@ const ManageCategories: React.FC = () => {
     setIsEditCategory(true);
     setEditCategoryId(category.id);
     setCategoryName(category.name);
+    setCategoryImage(null); // Reset the file input when editing
     if (category.image) {
       setCategoryImagePreview(category.image);
     }

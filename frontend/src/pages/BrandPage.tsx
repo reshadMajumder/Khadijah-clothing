@@ -188,7 +188,7 @@ const BrandPage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="group relative rounded-xl overflow-hidden shadow-lg">
               <img 
-                src="https://images.pexels.com/photos/7788046/pexels-photo-7788046.jpeg?auto=compress&cs=tinysrgb&w=600" 
+                src="https://taposheebd.com/wp-content/uploads/2023/12/1980e.jpg" 
                 alt="Khadijah Clothing Brand 3pc Collection" 
                 className="w-full h-80 object-cover transform transition duration-500 group-hover:scale-110"
               />
@@ -226,7 +226,7 @@ const BrandPage: React.FC = () => {
             
             <div className="group relative rounded-xl overflow-hidden shadow-lg">
               <img 
-                src="https://images.pexels.com/photos/11679859/pexels-photo-11679859.jpeg?auto=compress&cs=tinysrgb&w=600" 
+                src="https://th.bing.com/th/id/OIP.opzqjlfp_UFBIbl70wYLlQHaJP?cb=iwp2&rs=1&pid=ImgDetMain" 
                 alt="Khadijah Clothing Brand Pakistani Dresses Collection" 
                 className="w-full h-80 object-cover transform transition duration-500 group-hover:scale-110"
               />
