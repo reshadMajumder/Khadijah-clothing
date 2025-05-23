@@ -158,10 +158,11 @@ class OrderSerializer(serializers.ModelSerializer):
     
 class StuffSerializers(serializers.ModelSerializer):
     image = serializers.ImageField(required=False)
+    s_id = serializers.CharField(required=False)
     
     class Meta:
         model = Stuff
-        fields = ['id', 'name', 'position', 'image', 'created_at', 'updated_at']
+        fields = ['id', 'name', 'position', 'image', 'created_at', 'updated_at', 's_id']
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)

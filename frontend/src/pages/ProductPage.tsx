@@ -87,9 +87,8 @@ const ProductPage: React.FC = () => {
       try {
         const response = await fetch(`${API_BASE_URL}api/products/?category=${categoryId}`);
         const data = await response.json();
-        
         if (data.status === 'success' && data.products) {
-          // Filter out the current product and take up to 4 related products
+          // Always filter out the current product and take up to 4 related products
           const related = data.products
             .filter((p: Product) => p.id !== id)
             .slice(0, 4);

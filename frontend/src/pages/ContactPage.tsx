@@ -272,15 +272,11 @@ const ContactPage: React.FC = () => {
                   <h3 className="text-lg font-medium text-white mb-3">Opening Hours</h3>
                   <ul className="space-y-2 text-gray-300">
                     <li className="flex justify-between">
-                      <span>Monday - Friday</span>
-                      <span>10:00 AM - 8:00 PM</span>
+                      <span>Saturday - Thursday</span>
+                      <span>08:00 AM - 10:00 PM</span>
                     </li>
                     <li className="flex justify-between">
-                      <span>Saturday</span>
-                      <span>11:00 AM - 7:00 PM</span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span>Sunday</span>
+                      <span>Friday</span>
                       <span>Closed</span>
                     </li>
                   </ul>

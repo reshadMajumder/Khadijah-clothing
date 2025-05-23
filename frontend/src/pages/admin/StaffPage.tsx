@@ -5,10 +5,11 @@ import { API_BASE_URL } from '../../data/ApiUrl';
 import { useAuth } from '../../context/AuthContext';
 
 interface Staff {
-  id: string;
+  id?: string;
   name: string;
   position: string;
   image: string;
+  s_id?: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -20,10 +21,11 @@ const StaffPage: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentStaff, setCurrentStaff] = useState<Staff>({
-    id: '',
+    id: undefined,
     name: '',
     position: '',
-    image: ''
+    image: '',
+    s_id: '',
   });
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
@@ -107,10 +109,11 @@ const StaffPage: React.FC = () => {
   const openAddModal = () => {
     setIsEditing(false);
     setCurrentStaff({
-      id: '',
+      id: undefined,
       name: '',
       position: '',
-      image: ''
+      image: '',
+      s_id: '',
     });
     setSelectedImage(null);
     setImagePreview('');
@@ -119,7 +122,13 @@ const StaffPage: React.FC = () => {
 
   const openEditModal = (member: Staff) => {
     setIsEditing(true);
-    setCurrentStaff({ ...member });
+    setCurrentStaff({
+      id: member.id,
+      name: member.name,
+      position: member.position,
+      image: member.image,
+      s_id: member.s_id || '',
+    });
     setSelectedImage(null);
     setImagePreview(member.image || '');
     setShowModal(true);
@@ -144,7 +153,7 @@ const StaffPage: React.FC = () => {
       const formData = new FormData();
       formData.append('name', currentStaff.name);
       formData.append('position', currentStaff.position);
-      
+      if (currentStaff.s_id) formData.append('s_id', currentStaff.s_id);
       if (selectedImage) {
         formData.append('image', selectedImage, selectedImage.name);
       }
@@ -266,6 +275,9 @@ const StaffPage: React.FC = () => {
                 <div className="p-4">
                   <h3 className="text-lg font-medium text-white">{member.name}</h3>
                   <p className="text-orange-400">{member.position}</p>
+                  {member.s_id && (
+                    <p className="text-orange-400 text-xs mt-1">ID: {member.s_id}</p>
+                  )}
                   
                   <div className="mt-4 flex space-x-2">
                     <button
@@ -276,7 +288,7 @@ const StaffPage: React.FC = () => {
                       Edit
                     </button>
                     <button
-                      onClick={() => deleteStaffMember(member.id)}
+                      onClick={() => member.id && deleteStaffMember(member.id)}
                       className="p-1.5 bg-red-900/30 text-red-400 rounded-md hover:bg-red-900/50 transition-colors"
                       title="Delete Staff"
                     >
@@ -355,6 +367,23 @@ const StaffPage: React.FC = () => {
                       onChange={handleInputChange}
                       className="input-field"
                       placeholder="e.g. Senior Designer"
+                      required
+                    />
+                  </div>
+                  
+                  {/* Staff ID */}
+                  <div>
+                    <label htmlFor="s_id" className="block text-gray-300 mb-1">
+                      Staff ID <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="s_id"
+                      name="s_id"
+                      value={currentStaff.s_id || ''}
+                      onChange={handleInputChange}
+                      className="input-field"
+                      placeholder="e.g. ST123"
                       required
                     />
                   </div>

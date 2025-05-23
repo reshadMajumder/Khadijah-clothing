@@ -65,45 +65,23 @@ class ProductList(APIView):
     def get(self, request):
         try:
             cache_key = 'product_list'
-            products = cache.get(cache_key)
-            
-            if products is None:
+            products_data = cache.get(cache_key)
+            if products_data is None:
                 products = Product.objects.select_related('category').prefetch_related(
                     Prefetch('size', queryset=Size.objects.only('id', 'size')),
                     Prefetch('images', queryset=ProductImage.objects.only('id', 'image', 'image_url'))
                 ).order_by('-created_at')
-                cache.set(cache_key, products, timeout=300)  # Cache for 5 minutes
-            
-            # Reset query log
-            reset_queries()
-            
-            # Start time
-            start = time.time()
-            
-            # Convert to list to execute the query
-            products_list = list(products)
-            
-            # Print query count and time
-            query_count = len(connection.queries)
-            end = time.time()
-            
-            print(f"Number of queries: {query_count}")
-            print(f"Time taken: {end - start:.2f} seconds")
-            
-            # Print actual queries for analysis
-            for query in connection.queries:
-                print(f"Query: {query['sql']}")
-            
-            serializer = ProductSerializer(
-                products_list, 
-                many=True, 
-                context={'request': request}
-            )
-            
+                serializer = ProductSerializer(
+                    products,
+                    many=True,
+                    context={'request': request}
+                )
+                products_data = serializer.data
+                cache.set(cache_key, products_data, timeout=300)  # Cache serialized data for 5 minutes
             return Response({
                 'status': 'success',
                 'message': 'Products fetched successfully',
-                'products': serializer.data
+                'products': products_data
             }, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({
@@ -116,46 +94,24 @@ class ProductList(APIView):
 class FeaturedProducts(APIView):
     def get(self, request):
         try:
-            cache_key = 'product_list'
-            products = cache.get(cache_key)
-            
-            if products is None:
+            cache_key = 'featured_product_list'
+            products_data = cache.get(cache_key)
+            if products_data is None:
                 products = Product.objects.select_related('category').prefetch_related(
                     Prefetch('size', queryset=Size.objects.only('id', 'size')),
                     Prefetch('images', queryset=ProductImage.objects.only('id', 'image', 'image_url'))
                 ).order_by('-created_at')[:10]
-                cache.set(cache_key, products, timeout=300)  # Cache for 5 minutes
-            
-            # Reset query log
-            reset_queries()
-            
-            # Start time
-            start = time.time()
-            
-            # Convert to list to execute the query
-            products_list = list(products)[:8]
-            
-            # Print query count and time
-            query_count = len(connection.queries)
-            end = time.time()
-            
-            print(f"Number of queries: {query_count}")
-            print(f"Time taken: {end - start:.2f} seconds")
-            
-            # Print actual queries for analysis
-            for query in connection.queries:
-                print(f"Query: {query['sql']}")
-            
-            serializer = ProductSerializer(
-                products_list, 
-                many=True, 
-                context={'request': request}
-            )
-            
+                serializer = ProductSerializer(
+                    products,
+                    many=True,
+                    context={'request': request}
+                )
+                products_data = serializer.data
+                cache.set(cache_key, products_data, timeout=300)  # Cache serialized data for 5 minutes
             return Response({
                 'status': 'success',
                 'message': 'Products fetched successfully',
-                'products': serializer.data
+                'products': products_data[:8]
             }, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({
@@ -327,4 +283,4 @@ class ReviewView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+

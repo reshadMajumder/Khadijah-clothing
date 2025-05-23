@@ -23,13 +23,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = 'django-insecure-16*tne7-j!!=l$ypn_v893vb%97sz_i!k4l244alsz4izj'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG')
+DEBUG = True
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(',')
+# ALLOWED_HOSTS = ['127.0.0.1:8000','127.0.0.1','https://backend.khadijahclothing.com','www.backend.khadijahclothing.com','backend.khadijahclothing.com']
 
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -145,35 +146,36 @@ ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
     "https://api.patsonsbd.com",
     "https://patsonsbd.com",
+    "https://khadijahclothing.com",
+    'http://localhost:5173'
+
+
+    
 ]
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = True
-
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  # or whatever your frontend origin is
-    "https://api.patsonsbd.com",
-    "https://patsonsbd.com",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:5173",
+    "https://khadijahclothing.com"
 ]
 
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:5173",  # or whatever your frontend origin is
-    "https://api.patsonsbd.com",
-    "https://patsonsbd.com",
-]
+
 
 # Add default pagination settings
 DEFAULT_PAGE_SIZE = 20
 MAX_PAGE_SIZE = 100
 
 # Email Configuration
-EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')
-EMAIL_HOST = os.getenv('EMAIL_HOST')
-EMAIL_PORT = os.getenv('EMAIL_PORT')
-EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS')
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-ADMIN_EMAIL = os.getenv('ADMIN_EMAIL')
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'editreshad@gmail.com'
+EMAIL_HOST_PASSWORD = 'lgnb wukn qcge ykvt'
+ADMIN_EMAIL = 'reshadmajumder00@gmail.com'
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
 
@@ -222,5 +224,4 @@ IMAGE_OPTIMIZATION = {
     'QUALITY': 80,
     'FORMAT': 'JPEG'
 }
-
 

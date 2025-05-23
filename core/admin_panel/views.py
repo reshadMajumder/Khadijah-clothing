@@ -538,6 +538,7 @@ class StuffView(APIView):
         data = {
             'name': request.data.get('name'),
             'position': request.data.get('position'),
+            's_id': request.data.get('s_id'),
         }
         
         # Handle image file if provided
@@ -557,6 +558,7 @@ class StuffView(APIView):
         data = {
             'name': request.data.get('name', stuff.name),
             'position': request.data.get('position', stuff.position),
+            's_id': request.data.get('s_id', stuff.s_id),
         }
         
         # Handle image file if provided

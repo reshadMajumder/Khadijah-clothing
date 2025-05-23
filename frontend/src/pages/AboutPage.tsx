@@ -45,7 +45,7 @@ const AboutPage: React.FC = () => {
     'mainEntity': {
       '@type': 'Organization',
       'name': 'Khadijah Clothing Brand',
-      'description': 'Founded in 2020, Khadijah Clothing Brand brings elegant, high-quality women\'s fashion to customers who appreciate both traditional and contemporary styles with specialty in 3pc sets, kurtis, and Pakistani dresses.',
+      'description': 'Founded in 2020, Khadijah Clothing Brand brings elegant, high-quality women\'s fashion to customers who appreciate both traditional and contemporary styles with specialty in 3pc sets, Gowns, and Pakistani dresses.',
       'foundingDate': '2020',
       'founders': [
         {
@@ -66,8 +66,8 @@ const AboutPage: React.FC = () => {
     <>
       <SEOHead 
         title="About Khadijah Clothing Brand | Our Story & Values"
-        description="Learn about Khadijah Clothing Brand - our story, values, and the team behind our elegant women's fashion designs including 3pc sets, kurtis, and Pakistani dresses."
-        keywords="khadijah clothing brand, khadijah clothing, women's fashion, 3pc sets, kurti, pakistani dress, about khadijah"
+        description="Learn about Khadijah Clothing Brand - our story, values, and the team behind our elegant women's fashion designs including 3pc sets, Gowns, and Pakistani dresses."
+        keywords="khadijah clothing brand, khadijah clothing, women's fashion, Three-Piece sets, Gown, pakistani dress, about khadijah"
         canonicalUrl="https://khadijahclothing.com/about"
         ogUrl="https://khadijahclothing.com/about"
         structuredData={aboutPageStructuredData}
@@ -78,7 +78,7 @@ const AboutPage: React.FC = () => {
           <div 
             className="absolute inset-0 bg-gradient-to-r from-teal-950/80 to-teal-900/40"
             style={{
-              backgroundImage: "url('https://images.pexels.com/photos/3597429/pexels-photo-3597429.jpeg?auto=compress&cs=tinysrgb&w=1600')",
+              backgroundImage: "url('https://images.unsplash.com/photo-1701252068382-fbe79b926cdc?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               backgroundBlendMode: 'overlay'
@@ -102,7 +102,7 @@ const AboutPage: React.FC = () => {
             <div>
               <h2 className="text-3xl font-bold text-white mb-6">Our Story</h2>
               <p className="text-gray-300 mb-4">
-                Founded in 2020, <Link to="/brand" className="text-amber-400 hover:underline">Khadijah Clothing Brand</Link> was born out of a passion for bringing elegant, high-quality women's clothing to customers who appreciate both traditional and contemporary styles, specializing in 3pc sets, kurtis, and Pakistani dresses.
+                Founded in 2020, <Link to="/brand" className="text-amber-400 hover:underline">Khadijah Clothing Brand</Link> was born out of a passion for bringing elegant, high-quality women's clothing to customers who appreciate both traditional and contemporary styles, specializing in Three-Piece sets, Gowns, and Pakistani dresses.
               </p>
               <p className="text-gray-300 mb-4">
                 Our name "Khadijah" is inspired by the historical figure known for her independence, business acumen, and dignified presence – qualities we hope to imbue in every garment we create.
@@ -123,28 +123,28 @@ const AboutPage: React.FC = () => {
             <div className="grid grid-cols-2 gap-4">
               <div className="h-64 rounded-lg overflow-hidden">
                 <img 
-                  src="https://images.pexels.com/photos/3786766/pexels-photo-3786766.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
+                  src="/store1.jpeg" 
                   alt="Khadijah Clothing Brand Design Team" 
                   className="w-full h-full object-cover"
                 />
               </div>
               <div className="h-64 rounded-lg overflow-hidden">
                 <img 
-                  src="https://images.pexels.com/photos/3768167/pexels-photo-3768167.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
+                  src="/store2.jpeg" 
                   alt="Khadijah Clothing Brand Fabric Selection" 
                   className="w-full h-full object-cover"
                 />
               </div>
               <div className="h-64 rounded-lg overflow-hidden">
                 <img 
-                  src="https://images.pexels.com/photos/5490778/pexels-photo-5490778.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
+                  src="/store4.jpeg" 
                   alt="Khadijah Clothing Brand Garment Stitching" 
                   className="w-full h-full object-cover"
                 />
               </div>
               <div className="h-64 rounded-lg overflow-hidden">
                 <img 
-                  src="https://images.pexels.com/photos/1488463/pexels-photo-1488463.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
+                  src="/store3.jpeg" 
                   alt="Khadijah Clothing Brand Store Interior" 
                   className="w-full h-full object-cover"
                 />
@@ -165,7 +165,7 @@ const AboutPage: React.FC = () => {
               </div>
               <h3 className="text-xl font-semibold text-white mb-3">Quality</h3>
               <p className="text-gray-300">
-                We meticulously select fabrics and monitor our production process to ensure every garment meets our high standards of quality and comfort, whether it's our 3pc sets, kurtis or Pakistani dresses.
+                We meticulously select fabrics and monitor our production process to ensure every garment meets our high standards of quality and comfort, whether it's our 3pc sets, Gowns or Pakistani dresses.
               </p>
             </div>
             <div className="bg-teal-900 rounded-lg p-6 h-full">
@@ -176,7 +176,7 @@ const AboutPage: React.FC = () => {
               </div>
               <h3 className="text-xl font-semibold text-white mb-3">Style</h3>
               <p className="text-gray-300">
-                We celebrate and embrace fashion that respects tradition while offering stylish, contemporary designs that today's women desire, from elegant 3pc sets to stylish kurtis.
+                We celebrate and embrace fashion that respects tradition while offering stylish, contemporary designs that today's women desire, from elegant 3pc sets to stylish Gowns.
               </p>
             </div>
             <div className="bg-teal-900 rounded-lg p-6 h-full">
@@ -221,9 +221,10 @@ const AboutPage: React.FC = () => {
                       className="w-full h-full object-cover object-center transition-transform duration-500 hover:scale-105"
                     />
                   </div>
-                  <div className="p-6">
-                    <p className="text-sm text-orange-400 mb-1">{member.position}</p>
-                    <h3 className="text-xl font-medium text-white">{member.name}</h3>
+                  <div className="p-6 flex flex-col items-center justify-center text-center">
+                    <h3 className="text-xl font-medium text-white">Name: {member.name}</h3>
+                    <p className="text-sm text-white-400 mb-1">ID: {member.s_id}</p>
+                    <p className="text-sm text-white-400 mb-1"> {member.position}</p>
                   </div>
                 </div>
               ))}
@@ -242,7 +243,7 @@ const AboutPage: React.FC = () => {
             <h2 className="text-2xl md:text-3xl font-bold text-white mb-6">Experience Khadijah Clothing Brand</h2>
             <p className="text-gray-300 max-w-2xl mx-auto mb-8">
               Discover why women around the world choose Khadijah Clothing Brand for their fashion needs.
-              From elegant 3pc sets to stylish kurtis and Pakistani dresses, we offer quality fashion without compromising on style.
+              From elegant 3pc sets to stylish Gowns and Pakistani dresses, we offer quality fashion without compromising on style.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Link to="/brand" className="px-4 py-2 bg-amber-500 text-white rounded hover:bg-amber-600 transition">Learn More About Our Brand</Link>

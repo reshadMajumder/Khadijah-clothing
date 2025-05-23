@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import SEOHead from '../components/SEO/SEOHead';
-import { ShoppingBag, Star, TrendingUp, Heart, Award, Truck } from 'lucide-react';
+import { ShoppingBag, Star, TrendingUp, Heart, Award, Truck, MessageSquare } from 'lucide-react';
+import { API_BASE_URL } from '../data/ApiUrl';
 
 const BrandPage: React.FC = () => {
   // Structured data specifically for the brand page
@@ -9,7 +10,7 @@ const BrandPage: React.FC = () => {
     '@context': 'https://schema.org',
     '@type': 'Brand',
     'name': 'Khadijah Clothing Brand',
-    'description': 'Khadijah Clothing Brand is a premium women\'s fashion retailer specializing in elegant clothing including 3pc sets, kurtis, and Pakistani dresses. Our brand represents quality, style, and contemporary design.',
+    'description': 'Khadijah Clothing Brand is a premium women\'s fashion retailer specializing in elegant clothing including Three-Piece sets, Gowns, and Pakistani dresses. Our brand represents quality, style, and contemporary design.',
     'logo': 'https://khadijahclothing.com/logo.png',
     'url': 'https://khadijahclothing.com/brand',
     'sameAs': [
@@ -23,12 +24,61 @@ const BrandPage: React.FC = () => {
     }
   };
 
+  // Reviews state
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        setReviewsLoading(true);
+        const response = await fetch(`${API_BASE_URL}api/reviews/`);
+        const data = await response.json();
+        // Only approved reviews
+        const approved = Array.isArray(data) ? data.filter((r: any) => r.approved) : [];
+        setReviews(approved.slice(0, 3));
+      } catch (error) {
+        setReviews([]);
+      } finally {
+        setReviewsLoading(false);
+      }
+    };
+    fetchReviews();
+  }, []);
+
+  // Categories state
+  interface CategoryData {
+    id: string;
+    name: string;
+    image?: string;
+  }
+  const [categories, setCategories] = useState<CategoryData[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setCategoriesLoading(true);
+        const response = await fetch(`${API_BASE_URL}api/categories/`);
+        const data = await response.json();
+        if (data.status === 'success' && data.categories) {
+          setCategories(data.categories);
+        }
+      } catch (error) {
+        setCategories([]);
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+    fetchCategories();
+  }, []);
+
   return (
     <>
       <SEOHead 
         title="Khadijah Clothing Brand - Premium Women's Fashion Collection"
-        description="Discover the story behind Khadijah Clothing Brand. We create premium women's fashion including 3pc sets, kurtis, and Pakistani dresses with a focus on quality, style, and elegance."
-        keywords="khadijah clothing brand, women's fashion brand, 3pc sets, kurti, pakistani dress, fashion brand, premium clothing"
+        description="Discover the story behind Khadijah Clothing Brand. We create premium women's fashion including Three-Piece sets, Gowns, and Pakistani dresses with a focus on quality, style, and elegance."
+        keywords="khadijah clothing brand, women's fashion brand, Three-Piece sets, Gowns, pakistani dress, fashion brand, premium clothing"
         canonicalUrl="https://khadijahclothing.com/brand"
         structuredData={brandStructuredData}
       />
@@ -42,7 +92,7 @@ const BrandPage: React.FC = () => {
               Discover <span className="text-amber-400">Khadijah</span> Clothing Brand
             </h1>
             <p className="text-xl text-gray-200 max-w-2xl mb-10">
-              Elegance and style that celebrates the modern woman with exquisite 3pc sets, kurtis, and Pakistani dresses
+              Elegance and style that celebrates the modern woman with exquisite Three-Piece sets, Gowns, and Pakistani dresses
             </p>
             <div className="flex flex-wrap gap-4 justify-center">
               <Link 
@@ -120,7 +170,7 @@ const BrandPage: React.FC = () => {
                 Our name "Khadijah" is inspired by the historical figure known for her strength, business acumen, and dignified presence – qualities we hope to imbue in every garment we create.
               </p>
               <p className="text-gray-700 mb-6 leading-relaxed">
-                At Khadijah Clothing Brand, we believe that quality and style can go hand in hand. Our designs reflect this philosophy, combining traditional elements with contemporary fashion sensibilities in our 3pc sets, kurtis, and Pakistani dresses.
+                At Khadijah Clothing Brand, we believe that quality and style can go hand in hand. Our designs reflect this philosophy, combining traditional elements with contemporary fashion sensibilities in our Three-Piece sets, Gowns, and Pakistani dresses.
               </p>
               <div className="flex items-center space-x-4">
                 <img 
@@ -177,73 +227,42 @@ const BrandPage: React.FC = () => {
         </div>
       </div>
       
-      {/* Collection Showcase */}
+      {/* Collection Showcase - replaced with dynamic categories */}
       <div className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Explore Our Collections</h2>
             <p className="text-gray-600 max-w-2xl mx-auto">Discover our range of exclusive designs created for the modern woman</p>
           </div>
-          
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="group relative rounded-xl overflow-hidden shadow-lg">
-              <img 
-                src="https://taposheebd.com/wp-content/uploads/2023/12/1980e.jpg" 
-                alt="Khadijah Clothing Brand 3pc Collection" 
-                className="w-full h-80 object-cover transform transition duration-500 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
-              <div className="absolute bottom-0 left-0 p-6">
-                <h3 className="text-2xl font-bold text-white mb-2">3pc Sets</h3>
-                <p className="text-gray-200 mb-4">Elegant three-piece sets for every occasion</p>
-                <Link 
-                  to="/products?category=3pc" 
-                  className="inline-block px-4 py-2 bg-amber-500 text-white rounded-full hover:bg-amber-600 transition"
-                >
-                  View Collection
-                </Link>
-              </div>
-            </div>
-            
-            <div className="group relative rounded-xl overflow-hidden shadow-lg">
-              <img 
-                src="https://images.pexels.com/photos/8386654/pexels-photo-8386654.jpeg?auto=compress&cs=tinysrgb&w=600" 
-                alt="Khadijah Clothing Brand Kurtis Collection" 
-                className="w-full h-80 object-cover transform transition duration-500 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
-              <div className="absolute bottom-0 left-0 p-6">
-                <h3 className="text-2xl font-bold text-white mb-2">Kurtis</h3>
-                <p className="text-gray-200 mb-4">Beautiful kurtis in various styles and designs</p>
-                <Link 
-                  to="/products?category=kurtis" 
-                  className="inline-block px-4 py-2 bg-amber-500 text-white rounded-full hover:bg-amber-600 transition"
-                >
-                  View Collection
-                </Link>
-              </div>
-            </div>
-            
-            <div className="group relative rounded-xl overflow-hidden shadow-lg">
-              <img 
-                src="https://th.bing.com/th/id/OIP.opzqjlfp_UFBIbl70wYLlQHaJP?cb=iwp2&rs=1&pid=ImgDetMain" 
-                alt="Khadijah Clothing Brand Pakistani Dresses Collection" 
-                className="w-full h-80 object-cover transform transition duration-500 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
-              <div className="absolute bottom-0 left-0 p-6">
-                <h3 className="text-2xl font-bold text-white mb-2">Pakistani Dresses</h3>
-                <p className="text-gray-200 mb-4">Stunning Pakistani designs for special moments</p>
-                <Link 
-                  to="/products?category=pakistani" 
-                  className="inline-block px-4 py-2 bg-amber-500 text-white rounded-full hover:bg-amber-600 transition"
-                >
-                  View Collection
-                </Link>
-              </div>
-            </div>
+            {categoriesLoading ? (
+              [...Array(3)].map((_, idx) => (
+                <div key={idx} className="h-80 bg-teal-800/30 rounded-lg animate-pulse"></div>
+              ))
+            ) : categories.length === 0 ? (
+              <div className="col-span-3 text-center text-gray-400 py-8">No categories available</div>
+            ) : (
+              categories.slice(0, 3).map((category, index) => (
+                <div key={category.id} className="group relative rounded-xl overflow-hidden shadow-lg h-80">
+                  <img
+                    src={category.image || `https://images.pexels.com/photos/${2689615 + index * 100000}/pexels-photo-${2689615 + index * 100000}.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2`}
+                    alt={`${category.name} Collection`}
+                    className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+                  <div className="absolute bottom-0 left-0 p-6">
+                    <h3 className="text-2xl font-bold text-white mb-2">{category.name}</h3>
+                    <Link
+                      to={`/products?category=${category.id}`}
+                      className="inline-block px-4 py-2 bg-amber-500 text-white rounded-full hover:bg-amber-600 transition"
+                    >
+                      View Collection
+                    </Link>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
-          
           <div className="mt-12 text-center">
             <Link 
               to="/products" 
@@ -255,6 +274,8 @@ const BrandPage: React.FC = () => {
         </div>
       </div>
       
+
+      
       {/* Testimonials */}
       <div className="py-16 bg-white">
         <div className="container mx-auto px-4">
@@ -262,79 +283,43 @@ const BrandPage: React.FC = () => {
             <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Customer Love</h2>
             <p className="text-gray-600 max-w-2xl mx-auto">Hear what our customers have to say about their Khadijah experience</p>
           </div>
-          
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-gray-50 p-6 rounded-xl shadow-md">
-              <div className="flex items-center text-amber-500 mb-4">
-                <Star className="fill-current h-5 w-5" />
-                <Star className="fill-current h-5 w-5" />
-                <Star className="fill-current h-5 w-5" />
-                <Star className="fill-current h-5 w-5" />
-                <Star className="fill-current h-5 w-5" />
-              </div>
-              <p className="text-gray-700 mb-6 italic">
-                "The quality of the 3pc set I ordered was beyond my expectations. The stitching is perfect and the fabric feels luxurious. Will definitely be ordering more!"
-              </p>
-              <div className="flex items-center">
-                <img 
-                  src="https://randomuser.me/api/portraits/women/12.jpg" 
-                  alt="Customer" 
-                  className="w-10 h-10 rounded-full mr-4"
-                />
-                <div>
-                  <h4 className="font-medium text-gray-800">Ayesha Khan</h4>
-                  <p className="text-gray-600 text-sm">Dhaka</p>
+            {reviewsLoading ? (
+              [...Array(3)].map((_, i) => (
+                <div key={i} className="bg-gray-50 p-6 rounded-xl shadow-md animate-pulse">
+                  <div className="h-6 bg-gray-200 rounded w-1/2 mb-4"></div>
+                  <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
                 </div>
-              </div>
-            </div>
-            
-            <div className="bg-gray-50 p-6 rounded-xl shadow-md">
-              <div className="flex items-center text-amber-500 mb-4">
-                <Star className="fill-current h-5 w-5" />
-                <Star className="fill-current h-5 w-5" />
-                <Star className="fill-current h-5 w-5" />
-                <Star className="fill-current h-5 w-5" />
-                <Star className="fill-current h-5 w-5" />
-              </div>
-              <p className="text-gray-700 mb-6 italic">
-                "I've been a regular customer for over a year now. Their Pakistani dresses always get me compliments at every event I attend. Such unique designs!"
-              </p>
-              <div className="flex items-center">
-                <img 
-                  src="https://randomuser.me/api/portraits/women/36.jpg" 
-                  alt="Customer" 
-                  className="w-10 h-10 rounded-full mr-4"
-                />
-                <div>
-                  <h4 className="font-medium text-gray-800">Farida Rahman</h4>
-                  <p className="text-gray-600 text-sm">Chittagong</p>
+              ))
+            ) : reviews.length > 0 ? (
+              reviews.map((review, idx) => (
+                <div key={review.id || idx} className="bg-gray-50 p-6 rounded-xl shadow-md">
+                  <div className="flex items-center text-amber-500 mb-4">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="fill-current h-5 w-5" fill={i < (review.rating || 0) ? '#f59e42' : 'none'} color={i < (review.rating || 0) ? '#f59e42' : '#e5e7eb'} />
+                    ))}
+                  </div>
+                  <p className="text-gray-700 mb-6 italic">"{review.message}"</p>
+                  <div className="flex items-center">
+                    <MessageSquare className="w-10 h-10 text-orange-400 mr-4" />
+                    <div>
+                      <h4 className="font-medium text-gray-800">{review.name}</h4>
+                      <p className="text-gray-600 text-sm">{review.created_at ? new Date(review.created_at).toLocaleDateString() : ''}</p>
+                    </div>
+                  </div>
                 </div>
+              ))
+            ) : (
+              <div className="bg-gray-50 p-6 rounded-xl shadow-md text-center col-span-3">
+                <p className="text-gray-500">No customer reviews yet.</p>
               </div>
-            </div>
-            
-            <div className="bg-gray-50 p-6 rounded-xl shadow-md">
-              <div className="flex items-center text-amber-500 mb-4">
-                <Star className="fill-current h-5 w-5" />
-                <Star className="fill-current h-5 w-5" />
-                <Star className="fill-current h-5 w-5" />
-                <Star className="fill-current h-5 w-5" />
-                <Star className="fill-current h-5 w-5" />
-              </div>
-              <p className="text-gray-700 mb-6 italic">
-                "The kurtis from Khadijah are perfect for my work wardrobe. Comfortable, stylish and so well made. Their customer service is also exceptional!"
-              </p>
-              <div className="flex items-center">
-                <img 
-                  src="https://randomuser.me/api/portraits/women/62.jpg" 
-                  alt="Customer" 
-                  className="w-10 h-10 rounded-full mr-4"
-                />
-                <div>
-                  <h4 className="font-medium text-gray-800">Sabina Ahmed</h4>
-                  <p className="text-gray-600 text-sm">Sylhet</p>
-                </div>
-              </div>
-            </div>
+            )}
+          </div>
+          <div className="mt-8 text-center">
+            <Link to="/reviews" className="inline-block px-6 py-2 border border-gray-300 text-gray-700 rounded-full hover:bg-gray-100 transition">
+              Read All Reviews
+            </Link>
           </div>
         </div>
       </div>
@@ -377,44 +362,44 @@ const BrandPage: React.FC = () => {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
             <img 
-              src="https://images.pexels.com/photos/6765524/pexels-photo-6765524.jpeg?auto=compress&cs=tinysrgb&w=300" 
+              src="https://th.bing.com/th/id/OIP.pswuwFGNXbKM4BXT7LjPFwHaLH?cb=iwp2&rs=1&pid=ImgDetMain" 
               alt="Instagram feed" 
               className="w-full h-40 object-cover rounded-md shadow-sm hover:opacity-90 transition"
             />
             <img 
-              src="https://images.pexels.com/photos/6765627/pexels-photo-6765627.jpeg?auto=compress&cs=tinysrgb&w=300" 
+              src="https://images.pexels.com/photos/19248233/pexels-photo-19248233/free-photo-of-western-dress-shoot-by-dhanno.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
               alt="Instagram feed" 
               className="w-full h-40 object-cover rounded-md shadow-sm hover:opacity-90 transition"
             />
             <img 
-              src="https://images.pexels.com/photos/7679740/pexels-photo-7679740.jpeg?auto=compress&cs=tinysrgb&w=300" 
+              src="https://images.pexels.com/photos/19292843/pexels-photo-19292843/free-photo-of-western-dress-2024-shoot-by-dhanno-mayra-jaffri.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
               alt="Instagram feed" 
               className="w-full h-40 object-cover rounded-md shadow-sm hover:opacity-90 transition"
             />
             <img 
-              src="https://images.pexels.com/photos/6765577/pexels-photo-6765577.jpeg?auto=compress&cs=tinysrgb&w=300" 
+              src="https://images.pexels.com/photos/19511802/pexels-photo-19511802/free-photo-of-eastern-dresses-2024-shoot-by-dhanno.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
               alt="Instagram feed" 
               className="w-full h-40 object-cover rounded-md shadow-sm hover:opacity-90 transition"
             />
             <img 
-              src="https://images.pexels.com/photos/6764083/pexels-photo-6764083.jpeg?auto=compress&cs=tinysrgb&w=300" 
+              src="https://images.pexels.com/photos/19511779/pexels-photo-19511779/free-photo-of-eastern-dresses-2024-shoot-by-dhanno.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
               alt="Instagram feed" 
               className="w-full h-40 object-cover rounded-md shadow-sm hover:opacity-90 transition hidden md:block"
             />
             <img 
-              src="https://images.pexels.com/photos/5709665/pexels-photo-5709665.jpeg?auto=compress&cs=tinysrgb&w=300" 
+              src="https://images.pexels.com/photos/19401522/pexels-photo-19401522/free-photo-of-luxury-eastern-dresses-2024-shoot-by-dhanno.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
               alt="Instagram feed" 
               className="w-full h-40 object-cover rounded-md shadow-sm hover:opacity-90 transition hidden md:block"
             />
           </div>
           <div className="mt-8 text-center">
             <a 
-              href="https://www.instagram.com/khadijahclothing" 
+              href="https://www.facebook.com/khadijah.clothingbrand" 
               target="_blank" 
               rel="noopener noreferrer" 
               className="inline-block px-6 py-2 border border-gray-300 text-gray-700 rounded-full hover:bg-gray-100 transition"
             >
-              View Instagram Profile
+              View Facebook Profile
             </a>
           </div>
         </div>
@@ -429,4 +414,4 @@ const BrandPage: React.FC = () => {
   );
 };
 
-export default BrandPage; 
+export default BrandPage;

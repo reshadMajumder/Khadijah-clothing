@@ -84,6 +84,7 @@ class Stuff(models.Model):
     name = models.CharField(max_length=200)
     image = models.ImageField(upload_to='stuff_images/',null=True, blank=True)
     position = models.CharField(max_length=200)
+    s_id = models.CharField(max_length=30)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
